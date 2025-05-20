@@ -1,6 +1,6 @@
 <template>
   <div
-    class="relative flex flex-col justify-center overflow-hidden min-h-screen mt-[-100px]"
+    class="relative flex flex-col justify-center overflow-hidden min-h-screen mt-[-60px]"
   >
     <div class="w-full p-6 m-auto rounded-md lg:max-w-lg">
       <Logo class="mx-auto" width="130px" height="auto" />

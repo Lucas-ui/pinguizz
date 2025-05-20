@@ -14,7 +14,9 @@
         title and actions parts
       </p>
       <div class="card-actions">
-        <button class="btn btn-warning rounded-full">
+        <button
+          class="btn bg-[#f35e21] hover:bg-[#e55215] border-0 rounded-full"
+        >
           Découvrir les modules
         </button>
       </div>

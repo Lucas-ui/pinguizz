@@ -24,6 +24,11 @@ const router = createRouter({
       name: "themes page",
       component: () => import("../views/Themes.vue"),
     },
+    {
+      path: "/profile",
+      name: "profile page",
+      component: () => import("../views/Profile.vue"),
+    },
   ],
 });
 

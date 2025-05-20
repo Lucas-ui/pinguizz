@@ -195,7 +195,7 @@
         <div class="flex gap-4 justify-center">
           <RouterLink to="/registration">
             <button
-              class="btn bg-[#f35e21] border-0 rounded-full text-white w-fit"
+              class="btn bg-[#f35e21] hover:bg-[#e55215] border-0 rounded-full text-white w-fit"
             >
               S'inscrire maintenant
             </button>

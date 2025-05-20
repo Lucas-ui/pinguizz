@@ -73,6 +73,9 @@
       <RouterLink to="/login" class="btn btn-primary rounded-full"
         >Se connecter</RouterLink
       >
+      <RouterLink to="/profile">
+        <p class="text-black underline">Profil</p>
+      </RouterLink>
     </div>
   </div>
 </template>
