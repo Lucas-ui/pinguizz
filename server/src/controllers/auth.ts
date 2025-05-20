@@ -3,6 +3,7 @@ import { sign, verify } from "jsonwebtoken";
 import { logger } from "../class/logger";
 import { User } from "../models/user";
 import { hasher } from "../class/hasher";
+import { directory } from "../class/directory";
 import { Op, ValidationError } from "sequelize";
 
 class AuthController {
@@ -13,13 +14,15 @@ class AuthController {
     try {
         const hashedPassword = await hasher.hash(data.password);
 
+        const avatar = await directory.getAvatar()
+
         const newUser = await User.create({
             username: data.username,
             name: data.name,
             firstname: data.firstname,
             password: hashedPassword,
             isAdmin: data.isAdmin,
-            image: data.image,
+            image: avatar,
         });
 
         const dataNewUser = newUser.get({ plain: true });

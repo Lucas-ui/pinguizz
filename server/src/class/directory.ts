@@ -132,6 +132,22 @@ class Directory {
             isDirectory: stat.isDirectory(),
         };
     }
+
+    async getAvatar(): Promise<string> {
+        const avatarFolder = "src/images/avatar";
+        const files = await this.listFiles(avatarFolder);
+
+        const imageFiles = files.filter(file =>
+            /\.(jpg|jpeg|png|webp)$/i.test(file)
+        );
+
+        if (imageFiles.length === 0) {
+            return "default.png";
+        }
+
+        const randomIndex = Math.floor(Math.random() * imageFiles.length);
+        return imageFiles[randomIndex];
+    };
 }
 
 export const directory = new Directory();

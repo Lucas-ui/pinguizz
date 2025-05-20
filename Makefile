@@ -7,6 +7,9 @@ VOLUME_NAME = pinguizz_db-data-pinguiz
 run:
 	docker compose -f $(COMPOSE_DEV) up
 
+rund:
+	docker compose -f $(COMPOSE_DEV) up -d
+
 build:
 	docker compose -f $(COMPOSE_DEV) up --build
 
@@ -18,5 +21,5 @@ reset:
 	docker volume rm $(VOLUME_NAME) || true
 	docker compose -f $(COMPOSE_DEV) up 
 
-rund:
-	docker compose -f $(COMPOSE_DEV) up -d
+prune:
+	docker system prune -a --volumes
