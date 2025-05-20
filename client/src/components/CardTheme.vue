@@ -1,5 +1,5 @@
 <template>
-  <div class="card bg-base-100 w-96">
+  <div class="card bg-base-100 bg-transparent w-96">
     <figure class="px-10 pt-10">
       <img
         src="https://img.daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.webp"
@@ -14,7 +14,9 @@
         title and actions parts
       </p>
       <div class="card-actions">
-        <button class="btn btn-warning">Découvrir les modules</button>
+        <button class="btn btn-warning rounded-full">
+          Découvrir les modules
+        </button>
       </div>
     </div>
   </div>

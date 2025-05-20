@@ -1,5 +1,5 @@
 <template>
-  <div class="navbar bg-base-100">
+  <div class="navbar mx-auto max-w-7xl bg-transparent z-10">
     <div class="navbar-start">
       <div class="dropdown">
         <div tabindex="0" role="button" class="btn btn-ghost lg:hidden">
@@ -28,19 +28,51 @@
           </li>
         </ul>
       </div>
-      <RouterLink to="/">
-        <Logo width="60px" height="auto" />
-      </RouterLink>
-      <RouterLink to="/" class="text-xl text-black">Pinguiz</RouterLink>
+      <div class="flex items-center rotate-[-4deg]">
+        <RouterLink to="/">
+          <Logo width="70px" height="auto" />
+        </RouterLink>
+        <RouterLink
+          to="/"
+          class="text-xl font-bold bg-gradient-to-r from-blue-600 via-blue-700 to-orange-500 bg-clip-text text-transparent"
+          >Pinguiz</RouterLink
+        >
+      </div>
     </div>
     <div class="navbar-center hidden lg:flex">
-      <ul class="menu menu-horizontal px-1">
-        <li><a class="text-black">Démarrer un quiz</a></li>
-        <li><RouterLink to="/themes" class="text-black">Thèmes</RouterLink></li>
+      <ul class="flex gap-3 px-1">
+        <li>
+          <RouterLink
+            to="/"
+            exact-active-class="active-link"
+            class="text-black uppercase font-bold tracking-tighter"
+          >
+            <p
+              class="text-base text-gray-700 font-medium transition-all duration-300 relative after:content-[''] after:absolute after:left-0 after:bottom-0 after:w-0 after:h-[2px] after:bg-blue-600 after:transition-all after:duration-300 hover:text-blue-600 hover:after:w-full"
+            >
+              Accueil
+            </p>
+          </RouterLink>
+        </li>
+        <li>
+          <RouterLink
+            to="/themes"
+            exact-active-class="active-link"
+            class="text-black uppercase font-bold tracking-tighter"
+          >
+            <p
+              class="text-base text-gray-700 font-medium transition-all duration-300 relative after:content-[''] after:absolute after:left-0 after:bottom-0 after:w-0 after:h-[2px] after:bg-blue-600 after:transition-all after:duration-300 hover:text-blue-600 hover:after:w-full"
+            >
+              Thèmes
+            </p>
+          </RouterLink>
+        </li>
       </ul>
     </div>
     <div class="navbar-end">
-      <RouterLink to="/login" class="btn text-black">Se connecter</RouterLink>
+      <RouterLink to="/login" class="btn btn-primary rounded-full"
+        >Se connecter</RouterLink
+      >
     </div>
   </div>
 </template>
@@ -49,3 +81,12 @@
 import { useRouter } from "vue-router";
 import Logo from "../components/Logo.vue";
 </script>
+
+<style scoped>
+.active-link p {
+  color: #2563eb;
+}
+.active-link p::after {
+  width: 100% !important;
+}
+</style>

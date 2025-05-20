@@ -1,7 +1,9 @@
 <template>
-  <div class="relative flex flex-col justify-center h-[65vh] overflow-hidden">
+  <div
+    class="relative flex flex-col justify-center overflow-hidden min-h-screen mt-[-100px]"
+  >
     <div class="w-full p-6 m-auto rounded-md lg:max-w-lg">
-      <Logo class="mx-auto" width="100px" height="auto" />
+      <Logo class="mx-auto" width="130px" height="auto" />
       <h1 class="text-3xl font-semibold text-center text-black">Pinguiz</h1>
       <form class="space-y-4">
         <div>
@@ -13,7 +15,7 @@
           <input
             type="text"
             placeholder="Nom d'utilisateur"
-            class="w-full input input-bordered input-primary text-black"
+            class="w-full bg-transparent input input-bordered input-primary text-black"
           />
         </div>
         <div>
@@ -23,11 +25,11 @@
           <input
             type="password"
             placeholder="Mot de passe"
-            class="w-full input input-bordered input-primary text-black"
+            class="w-full bg-transparent input input-bordered input-primary text-black"
           />
         </div>
         <div class="flex items-center">
-          <button class="btn btn-primary mx-auto text-black">
+          <button class="btn btn-primary mx-auto rounded-full">
             Se connecter
           </button>
         </div>
