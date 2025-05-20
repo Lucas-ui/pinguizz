@@ -12,7 +12,6 @@
     "@tailwindcss/vite": "^4.1.7",
     "@vueuse/core": "^13.2.0",
     "axios": "^1.9.0",
-    "daisyui": "^5.0.35",
     "pinia": "^3.0.1",
     "remixicon": "^4.6.0",
     "tailwindcss": "^4.1.7",
@@ -21,6 +20,7 @@
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.2.3",
+    "daisyui": "^5.0.35",
     "vite": "^6.2.4",
     "vite-plugin-vue-devtools": "^7.7.2"
   }

@@ -1,10 +1,10 @@
 <template>
-  <HomeView />
+  <Layout />
 </template>
 
 <script setup>
 import { RouterLink, RouterView } from "vue-router";
-import HomeView from "./views/HomeView.vue";
+import Layout from "./layout/Layout.vue";
 </script>
 
 <style scoped></style>

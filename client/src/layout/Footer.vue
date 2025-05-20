@@ -1,7 +1,5 @@
 <template>
-  <main>
-    <p>Pinguizz</p>
-  </main>
+  <p class="text-black">footer</p>
 </template>
 
 <script setup></script>
