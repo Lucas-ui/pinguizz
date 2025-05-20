@@ -5,6 +5,9 @@ COMPOSE_2 = docker-compose.2.yml
 VOLUME_NAME = pinguizz_db-data-pinguiz
 
 run:
+	docker compose -f $(COMPOSE_DEV) up
+
+build:
 	docker compose -f $(COMPOSE_DEV) up --build
 
 down:
@@ -13,7 +16,7 @@ down:
 reset:
 	docker compose -f $(COMPOSE_DEV) down
 	docker volume rm $(VOLUME_NAME) || true
-	docker compose -f $(COMPOSE_DEV) up --build
+	docker compose -f $(COMPOSE_DEV) up 
 
 rund:
-	docker compose -f $(COMPOSE_DEV) up --build -d
+	docker compose -f $(COMPOSE_DEV) up -d

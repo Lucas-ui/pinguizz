@@ -1,3 +1,4 @@
+// ./database/db.ts
 import { Sequelize, type Transaction } from "sequelize";
 import { initializeAllModels } from "../models";
 import { logger } from "../class/logger";
@@ -7,11 +8,11 @@ class Database {
 
     constructor() {
         this.sequelize = new Sequelize(
-            process.env.MYSQL_DATABASE,
-            process.env.MYSQL_USER,
-            process.env.MYSQL_PASSWORD,
+            process.env.MYSQL_DATABASE!,
+            process.env.MYSQL_USER!,
+            process.env.MYSQL_PASSWORD!,
             {
-                host: process.env.MYSQL_HOST,
+                host: process.env.MYSQL_HOST!,
                 port: Number(process.env.MYSQL_PORT),
                 dialect: process.env.MYSQL_DIALECT as any,
                 dialectOptions: { charset: "utf8mb4" },
@@ -29,14 +30,15 @@ class Database {
                 },
             }
         );
-
-        this.init();
     }
 
-    private async init() {
+    public async connect() {
         try {
             await initializeAllModels(this.sequelize);
             await this.sequelize.authenticate();
+
+            await this.sequelize.sync({ alter: true });
+
             logger.loggerApi.info(
                 `✅ [MySQL] Connecté à ${process.env.MYSQL_DATABASE}`
             );

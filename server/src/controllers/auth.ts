@@ -7,39 +7,47 @@ import { Op, ValidationError } from "sequelize";
 
 class AuthController {
     async register(c: Context) {
-        const data = c.get("validatedBody");
+    const data = c.get("validatedBody");
+    console.log("Données reçues :", data);
 
-        if (data.password != data.confirmPassword) {
+    try {
+        // Hacher le mot de passe
+        const hashedPassword = await hasher.hash(data.password);
+        console.log("Mot de passe haché avec succès");
+
+        // Créer l'utilisateur avec tous les champs requis
+        const newUser = await User.create({
+            username: data.username,
+            name: data.name,
+            firstname: data.firstname,
+            password: hashedPassword,
+            isAdmin: data.isAdmin,
+            image: data.image,
+        });
+        console.log("Utilisateur créé :", newUser.get({ plain: true }));
+
+        const dataNewUser = newUser.get({ plain: true });
+        logger.loggerApi.info(`Inscription réussie: ${dataNewUser.username}`);
+
+        return c.json(
+            { message: "Utilisateur créé avec succès", username: dataNewUser.username },
+            201
+        );
+    } catch (error) {
+        console.error("Erreur complète lors de l'inscription :", error); // Log détaillé
+
+        if (error instanceof ValidationError) {
             return c.json(
-                { error: "Les mots de passe ne correspondent pas." },
+                { error: error.errors.map((e) => e.message) },
                 400
             );
         }
-        const hashedPassword = await hasher.hash(data.password);
-
-        try {
-            const newUser = await User.create({
-                username: data.username,
-                password: hashedPassword,
-            });
-            const dataNewUser = newUser.get({ plain: true });
-
-            logger.loggerApi.info("Inscription réussie: " + dataNewUser.id);
-
-            return c.json({}, 200);
-        } catch (error) {
-            if (error instanceof ValidationError) {
-                return c.json(
-                    { error: error.errors.map((e) => e.message) },
-                    400
-                );
-            }
-            logger.loggerAuth.error(
-                "Erreur lors de l'inscription: " + data.username + " | " + error
-            );
-            return c.json({ error: "Erreur lors de la création" }, 500);
-        }
+        logger.loggerAuth.error(
+            `Erreur lors de l'inscription: ${data.username} | ${error}`
+        );
+        return c.json({ error: "Erreur lors de la création", details: error.message }, 500);
     }
+}
 
     async signin(c: Context) {
         const data = c.get("validatedBody");
@@ -72,7 +80,7 @@ class AuthController {
                     400
                 );
             }
-            const token = sign({ userId: user.id }, process.env.JWT_SECRET!, {
+            const token = sign({ userId: user.username }, process.env.JWT_SECRET!, {
                 expiresIn: "1h",
             });
             const cookieSecure = process.env.COOKIE_SECURE === "true";
@@ -83,13 +91,11 @@ class AuthController {
                 } SameSite=Strict; Path=/`
             );
 
-            logger.loggerApi.info("Connexion réussie: " + user.id);
+            logger.loggerApi.info("Connexion réussie: " + user.username);
 
             const dataUser = {
                 username: data.username,
-                id: user.id,
-                createdAt: user.createdAt,
-                updateAt: user.updatedAt,
+                id: user.username,
             };
 
             return c.json({ user: dataUser }, 200);

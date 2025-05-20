@@ -24,6 +24,7 @@ logger.loggerConsole.info("PMA : http://localhost:8080");
 
 (async () => {
     try {
+        await Database.connect(); 
         logger.loggerConsole.info("📦 Base de données initialisée");
     } catch (error) {
         logger.loggerConsole.error(

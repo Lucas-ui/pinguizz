@@ -81,7 +81,7 @@ router.get("/me", authentification, authController.profil);
  *       500:
  *         description: Erreur lors de la connexion
  */
-router.post("/signin", validate(userSchema), authController.signin);
+router.post("/login", validate(userSchema), authController.signin);
 
 /**
  * @swagger

@@ -1,17 +1,16 @@
-import { DataTypes, Model, type Optional, Sequelize } from "sequelize";
+// server/src/models/User.ts
+import { DataTypes, Model, type Optional, Sequelize } from 'sequelize';
 
 interface UserAttributes {
     username: string;
     name: string;
     firstname: string;
     password: string;
-    isAdmin?: boolean;
-    image?: string;
-    createdAt?: Date;
-    updatedAt?: Date;
+    isAdmin: boolean;
+    image: string;
 }
 
-export interface UserCreationAttributes extends Optional<UserAttributes, "isAdmin" | "image"> {}
+interface UserCreationAttributes extends Optional<UserAttributes, 'isAdmin'> {}
 
 class User extends Model<UserAttributes, UserCreationAttributes> implements UserAttributes {
     declare username: string;
@@ -19,9 +18,7 @@ class User extends Model<UserAttributes, UserCreationAttributes> implements User
     declare firstname: string;
     declare password: string;
     declare isAdmin: boolean;
-    declare image?: string;
-    declare createdAt: Date;
-    declare updatedAt: Date;
+    declare image: string;
 
     public static async initialize(sequelize: Sequelize) {
         await User.init(
@@ -35,19 +32,19 @@ class User extends Model<UserAttributes, UserCreationAttributes> implements User
                         notEmpty: { msg: "L'identifiant ne doit pas être vide." },
                         len: {
                             args: [3, 40],
-                            msg: "L'identifiant doit contenir entre 3 et 25 caractères.",
+                            msg: "L'identifiant doit contenir entre 3 et 40 caractères.",
                         },
                     },
                 },
                 name: {
-                    type: DataTypes.STRING(25),
+                    type: DataTypes.STRING(40),
                     allowNull: false,
                     validate: {
                         notEmpty: { msg: "Le nom ne doit pas être vide." },
                     },
                 },
                 firstname: {
-                    type: DataTypes.STRING(25),
+                    type: DataTypes.STRING(40),
                     allowNull: false,
                     validate: {
                         notEmpty: { msg: "Le prénom ne doit pas être vide." },
@@ -71,13 +68,17 @@ class User extends Model<UserAttributes, UserCreationAttributes> implements User
                 },
                 image: {
                     type: DataTypes.STRING(36),
-                    allowNull: true,
+                    allowNull: false,
+                    validate: {
+                        notEmpty: { msg: "L'image ne doit pas être vide." },
+                    },
                 },
             },
             {
                 sequelize,
-                modelName: "User",
-                tableName: "Users",
+                modelName: 'User',
+                tableName: 'USERS',
+                timestamps: false,
             }
         );
     }

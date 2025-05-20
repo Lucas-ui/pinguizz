@@ -12,7 +12,7 @@ class UserController {
         const userData = c.get("validatedBody");
         await User.update(
             { username: userData.username },
-            { where: { id: userId } }
+            { where: { username: userId } }
         );
         return c.json({}, 200);
     }
@@ -20,7 +20,7 @@ class UserController {
     async delete(c: Context) {
         const userId = c.get("userId");
         await User.destroy({
-            where: { id: userId },
+            where: { username: userId },
         });
         return c.json({}, 200);
     }
