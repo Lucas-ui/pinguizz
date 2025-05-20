@@ -1,16 +1,5 @@
-# ./client/Dockerfile
-FROM node:20-alpine
+FROM node:22-alpine
 
-WORKDIR /app
+COPY . . 
 
-# Copie uniquement les fichiers nécessaires à l'installation
-COPY package*.json ./
-
-RUN npm install
-
-# Ensuite, copie le reste de l'app
-COPY . .
-
-EXPOSE 5173
-
-CMD ["npm", "run", "dev"]
+RUN rm -rf ./node_modules
