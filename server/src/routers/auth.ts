@@ -1,8 +1,8 @@
 import { Hono } from "hono";
 import { authController } from "../controllers/auth";
-import { validate } from "../docs/middlewares/validate";
+import { validate } from "../middlewares/validate";
 import { userSchema, registerSchema } from "../validators/user";
-import { authentification } from "../docs/middlewares/auth";
+import { authentification } from "../middlewares/auth";
 
 /**
  * @swagger
@@ -59,7 +59,7 @@ router.post("/register", validate(registerSchema), authController.register);
  *       500:
  *         description: Erreur interne du serveur
  */
-router.get("/me", authentification, authController.profil);
+router.get("/", authentification, authController.profil);
 
 /**
  * @swagger

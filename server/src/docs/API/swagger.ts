@@ -47,5 +47,5 @@ docsApp.get("/", async (c) => {
 });
 
 export const swaggerRoute = (app: Hono) => {
-    app.route("/docs", docsApp);
+    app.route("/api/docs", docsApp);
 };

@@ -11,11 +11,8 @@ class AuthController {
     console.log("Données reçues :", data);
 
     try {
-        // Hacher le mot de passe
         const hashedPassword = await hasher.hash(data.password);
-        console.log("Mot de passe haché avec succès");
 
-        // Créer l'utilisateur avec tous les champs requis
         const newUser = await User.create({
             username: data.username,
             name: data.name,
@@ -24,7 +21,6 @@ class AuthController {
             isAdmin: data.isAdmin,
             image: data.image,
         });
-        console.log("Utilisateur créé :", newUser.get({ plain: true }));
 
         const dataNewUser = newUser.get({ plain: true });
         logger.loggerApi.info(`Inscription réussie: ${dataNewUser.username}`);
@@ -34,7 +30,6 @@ class AuthController {
             201
         );
     } catch (error) {
-        console.error("Erreur complète lors de l'inscription :", error); // Log détaillé
 
         if (error instanceof ValidationError) {
             return c.json(
@@ -51,11 +46,13 @@ class AuthController {
 
     async signin(c: Context) {
         const data = c.get("validatedBody");
+        console.log(data)
         try {
             const user = await User.findOne({
                 where: { username: data.username },
                 raw: true,
             });
+
             if (!user) {
                 logger.loggerAuth.warn(
                     "Échec de connexion: " +
@@ -80,25 +77,20 @@ class AuthController {
                     400
                 );
             }
-            const token = sign({ userId: user.username }, process.env.JWT_SECRET!, {
+
+            const token = sign({ userId: user.username, isAdmin: user.isAdmin }, process.env.JWT_SECRET!, {
                 expiresIn: "1h",
             });
-            const cookieSecure = process.env.COOKIE_SECURE === "true";
-            c.header(
-                "Set-Cookie",
-                `token=${token}; HttpOnly; ${
-                    cookieSecure ? "Secure;" : ""
-                } SameSite=Strict; Path=/`
-            );
 
             logger.loggerApi.info("Connexion réussie: " + user.username);
 
             const dataUser = {
-                username: data.username,
+                username: user.username,
                 id: user.username,
+                token: token,
             };
 
-            return c.json({ user: dataUser }, 200);
+            return c.json({ user: dataUser }, 200); 
         } catch (error) {
             logger.loggerAuth.error(
                 "Erreur lors de la connexion: " + data.username + " | " + error
@@ -106,6 +98,7 @@ class AuthController {
             return c.json({ error: "Erreur lors de la connexion" }, 500);
         }
     }
+
 
     async profil(c: Context) {
         const userId = c.get("userId");
@@ -136,23 +129,17 @@ class AuthController {
                 return c.json({ error: "Token invalide ou expiré" }, 401);
             }
 
-            const userId = decoded.userId;
-
-            c.header(
-                "Set-Cookie",
-                `token=; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=0`
-            );
-
             logger.loggerApi.info(
-                "Utilisateur " + userId + " déconnecté avec succès"
+                "Utilisateur " + decoded.userId + " déconnecté (token oublié côté client)"
             );
 
-            return c.json({}, 200);
+            return c.json(200);
         } catch (error) {
             logger.loggerAuth.error("Erreur lors de la déconnexion |", error);
             return c.json({ error: "Erreur lors de la déconnexion" }, 500);
         }
     }
+
 }
 
 export const authController = new AuthController();

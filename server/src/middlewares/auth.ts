@@ -3,11 +3,13 @@ import { verify } from "jsonwebtoken";
 
 export const authentification = async (c: Context, next: Next) => {
     try {
-        const token = c.req.header("cookie")?.split("token=")[1]?.split(";")[0];
+        const authHeader = c.req.header("Authorization");
 
-        if (!token) {
+        if (!authHeader || !authHeader.startsWith("Bearer ")) {
             return c.json({ error: "Accès refusé. Token manquant." }, 401);
         }
+
+        const token = authHeader.split(" ")[1];
 
         const decoded = verify(token, process.env.JWT_SECRET!) as {
             userId: string;
@@ -24,6 +26,6 @@ export const authentification = async (c: Context, next: Next) => {
         await next();
     } catch (error) {
         console.error("Erreur de vérification du token:", error);
-        return c.json({ error: "Accès refusé. Token invalide." }, 401);
+        return c.json({ error: "Accès refusé. Token invalide ou expiré." }, 401);
     }
 };

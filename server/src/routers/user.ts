@@ -1,8 +1,8 @@
 import { Hono } from "hono";
-import { validate } from "../docs/middlewares/validate";
+import { validate } from "../middlewares/validate";
 import { userSchema } from "../validators/user";
 import { userController } from "../controllers/user";
-import { authentification } from "../docs/middlewares/auth";
+import { authentification } from "../middlewares/auth";
 
 /**
  * @swagger

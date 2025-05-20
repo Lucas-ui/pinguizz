@@ -2,11 +2,11 @@ import { z } from "zod";
 
 export const userSchema = z.object({
     username: z
-        .string()
-        .trim()
-        .transform(
-            (val) => val.charAt(0).toUpperCase() + val.slice(1).toLowerCase()
-        ),
+      .string()
+      .trim()
+      .min(1, 'Le nom d’utilisateur est requis')
+      .max(40, 'Le nom d’utilisateur ne doit pas dépasser 40 caractères')
+      .transform((val) => val.charAt(0).toUpperCase() + val.slice(1).toLowerCase()),
     password: z
         .string()
         .min(10, "Le mot de passe doit contenir au moins 10 caractères"),

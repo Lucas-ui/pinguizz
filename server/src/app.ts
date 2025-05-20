@@ -1,5 +1,6 @@
 import { Hono, type Context, type Next } from "hono";
 import { cors } from "hono/cors";
+import { serveStatic } from "hono/bun";
 import { router as userRouter } from "./routers/user";
 import { router as authRouter } from "./routers/auth";
 
@@ -38,7 +39,7 @@ logger.loggerConsole.info("PMA : http://localhost:8080");
 const app = new Hono();
 
 if (process.env.ENV === "dev") {
-    logger.loggerConsole.info("Documentation API : http://localhost:3000/docs");
+    logger.loggerConsole.info("Documentation API : http://localhost:3000/api/docs");
     swaggerRoute(app);
 }
 
@@ -64,10 +65,27 @@ app.use("*", async (c: Context, next: Next) => {
     );
 });
 
-app.route("/users", userRouter);
-app.route("/auth", authRouter);
+app.route("/api/users", userRouter);
+app.route("/api/auth", authRouter);
 
-app.get("/", (c: Context) => c.text("API avec Bun et Hono !"));
+
+// Images
+app.get(
+  "/api/images/avatar/*",
+  serveStatic({ root: "./src/images/avatar" })
+);
+
+app.get(
+  "/api/images/theme/*",
+  serveStatic({ root: "./src/images/theme" })
+);
+
+app.get(
+  "/api/images/module/*",
+  serveStatic({ root: "./src/images/module" })
+);
+
+app.get("/api", (c: Context) => c.text("API avec Bun et Hono !"));
 
 export default {
     port: process.env.PORT || 3000,
