@@ -4,7 +4,79 @@ DROP USER IF EXISTS 'Rudy'@'%';
 
 CREATE USER 'Rudy'@'%' IDENTIFIED BY '6y!Sj5G&&hHcugRR8t&';
 
-GRANT ALL PRIVILEGES ON abyss.* TO 'Rudy'@'%';
+GRANT ALL PRIVILEGES ON pinguiz.* TO 'Rudy'@'%';
 GRANT CREATE, DROP, ALTER, INDEX, CREATE TEMPORARY TABLES, CREATE USER ON *.* TO 'Rudy'@'%';
 
 FLUSH PRIVILEGES;
+
+USE pinguiz;
+
+CREATE TABLE USERS (
+    username VARCHAR(40) PRIMARY KEY,
+    name VARCHAR(40) NOT NULL,
+    firstname VARCHAR(40) NOT NULL,
+    password VARCHAR(60) NOT NULL,
+    isAdmin BOOLEAN DEFAULT FALSE,
+    image VARCHAR(36) NOT NULL
+);
+
+CREATE TABLE THEME (
+    id INT(5) PRIMARY KEY,
+    name VARCHAR(40) NOT NULL,
+    image VARCHAR(36) NOT NULL,
+    description VARCHAR(300)
+);
+
+CREATE TABLE MODULES (
+    id VARCHAR(36) PRIMARY KEY,
+    name VARCHAR(40) NOT NULL,
+    id_theme INT(5) NOT NULL,
+    image VARCHAR(36) NOT NULL,
+    description VARCHAR(300), 
+    FOREIGN KEY (id_theme) REFERENCES THEME(id)
+);
+
+CREATE TABLE TYPES (
+    id INT(1) PRIMARY KEY,
+    name VARCHAR(40) NOT NULL
+);
+
+CREATE TABLE QUESTIONS (
+    id VARCHAR(36) PRIMARY KEY,
+    text VARCHAR(300) NOT NULL,
+    id_module VARCHAR(36) NOT NULL,
+    id_type INT(1) NOT NULL,
+    FOREIGN KEY (id_module) REFERENCES MODULES(id),
+    FOREIGN KEY (id_type) REFERENCES TYPES(id)
+);
+
+CREATE TABLE REPONSES (
+    id VARCHAR(36) PRIMARY KEY,
+    intitule VARCHAR(40) NOT NULL
+);
+
+CREATE TABLE POSSEDER (
+    id_question VARCHAR(36),
+    id_reponse VARCHAR(36),
+    isCorrect BOOLEAN NOT NULL,
+    PRIMARY KEY (id_question, id_reponse),
+    FOREIGN KEY (id_question) REFERENCES QUESTIONS(id),
+    FOREIGN KEY (id_reponse) REFERENCES REPONSES(id)
+);
+
+CREATE TABLE PARTIES (
+    id VARCHAR(36) PRIMARY KEY,
+    score INT(2) NOT NULL,
+    id_user VARCHAR(40) NOT NULL,
+    FOREIGN KEY (id_user) REFERENCES USERS(username)
+);
+
+CREATE TABLE CONTENIR (
+    id_partie VARCHAR(36),
+    id_question VARCHAR(36),
+    id_reponse VARCHAR(36),
+    PRIMARY KEY (id_partie, id_question),
+    FOREIGN KEY (id_partie) REFERENCES PARTIES(id),
+    FOREIGN KEY (id_question) REFERENCES QUESTIONS(id),
+    FOREIGN KEY (id_reponse) REFERENCES REPONSES(id)
+);

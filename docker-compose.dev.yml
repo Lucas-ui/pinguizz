@@ -1,22 +1,22 @@
 services:
     client:
-        container_name: pinguizz-client
-        build: client/
-        ports:
-            - "4200:4200"
+        build: ./client
+        container_name: pinguiz-client
         working_dir: /app
-        command: sh -c "npm install && npm run dev"
+        ports:
+            - "5173:5173"
+        # ⛔️ ENLÈVE cette ligne ↓ car elle relance npm install et provoque les conflits
+        # command: sh -c "npm install && npm run dev"
         volumes:
-            - ./client:/app
-            - /app/node_modules
+            - ./client:/app       # ✅ tu peux garder ce volume pour le hot reload
         environment:
             - VITE_API_URL=http://localhost:3000
         networks:
-            - pinguizz-net
+            - pinguiz-net
         stop_grace_period: 1s
     server:
         image: oven/bun:1-alpine
-        container_name: pinguizz-server
+        container_name: pinguiz-server
         working_dir: /app
         ports:
             - "3000:3000"
@@ -25,7 +25,7 @@ services:
         env_file:
             - server/env/.env.dev
         networks:
-            - pinguizz-net
+            - pinguiz-net
         command: "sh -c 'bun --watch src/app.ts'"
         depends_on:
             - mysql
@@ -34,30 +34,30 @@ services:
 
     mysql:
         image: mysql:8
-        container_name: pinguizz-sql
+        container_name: pinguiz-sql
         env_file:
             - server/env/.env.dev
         volumes:
-            - ./server/env/sql/initUser.sql:/docker-entrypoint-initdb.d/init.sql
-            - db-data-pinguizz:/var/lib/mysql
+            - ./server/env/sql/init.sql:/docker-entrypoint-initdb.d/init.sql
+            - db-data-pinguiz:/var/lib/mysql
         networks:
-            - pinguizz-net
+            - pinguiz-net
         stop_grace_period: 1s
     phpmyadmin:
         image: phpmyadmin:5
-        container_name: pinguizz-pma
+        container_name: pinguiz-pma
         ports:
             - "8080:80"
         env_file:
             - server/env/.env.dev
         networks:
-            - pinguizz-net
+            - pinguiz-net
         depends_on:
             - mysql
         stop_grace_period: 1s
 networks:
-    pinguizz-net:
+    pinguiz-net:
         driver: bridge
 
 volumes:
-    db-data-pinguizz: {}
+    db-data-pinguiz: {}
