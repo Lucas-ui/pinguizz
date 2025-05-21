@@ -89,7 +89,6 @@ class AuthController {
 
             const dataUser = {
                 username: user.username,
-                id: user.username,
                 token: token,
             };
 

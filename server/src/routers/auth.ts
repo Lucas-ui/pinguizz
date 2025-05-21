@@ -4,136 +4,121 @@ import { validate } from "../middlewares/validate";
 import { userSchema, registerSchema } from "../validators/user";
 import { authentification } from "../middlewares/auth";
 
-/**
- * @swagger
- * tags:
- *   - name: Auth
- *     description: Authentification des utilisateurs
- */
 export const router = new Hono();
 
 /**
  * @swagger
- * /auth/register:
+ * /register:
  *   post:
- *     summary: Inscrire un nouvel utilisateur
- *     tags: [Auth]
+ *     summary: Enregistrer un nouvel utilisateur
+ *     tags:
+ *       - Auth
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/RegisterRequest'
+ *             type: object
+ *             required:
+ *               - username
+ *               - name
+ *               - firstname
+ *               - password
+ *               - confirmPassword
+ *             properties:
+ *               username:
+ *                 type: string
+ *                 example: Pinguiz42
+ *               name:
+ *                 type: string
+ *                 example: Dupont
+ *               firstname:
+ *                 type: string
+ *                 example: Alice
+ *               password:
+ *                 type: string
+ *                 example: SuperSecure123!
+ *               confirmPassword:
+ *                 type: string
+ *                 example: SuperSecure123!
+ *               isAdmin:
+ *                 type: boolean
+ *                 example: false
  *     responses:
- *       200:
- *         description: Inscription réussie
+ *       201:
+ *         description: Utilisateur créé avec succès
+ *       400:
+ *         description: Erreur de validation
  *       500:
- *         description: Erreur lors de la création de l'utilisateur
+ *         description: Erreur serveur
  */
 router.post("/register", validate(registerSchema), authController.register);
 
 /**
  * @swagger
- * /auth/me:
+ * /:
  *   get:
- *     summary: Récupérer le profil de l'utilisateur connecté
- *     tags: [Auth]
+ *     summary: Obtenir le profil de l'utilisateur connecté
+ *     tags:
+ *       - Auth
  *     security:
- *       - BearerAuth: []
+ *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: Informations du profil de l'utilisateur connecté
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 id:
- *                   type: integer
- *                 username:
- *                   type: string
- *                 email:
- *                   type: string
+ *         description: Données du profil utilisateur
  *       401:
- *         description: Non autorisé, token manquant ou invalide
- *       500:
- *         description: Erreur interne du serveur
+ *         description: Non autorisé
  */
 router.get("/", authentification, authController.profil);
 
 /**
  * @swagger
- * /auth/signin:
+ * /login:
  *   post:
- *     summary: Se connecter avec un utilisateur existant
- *     tags: [Auth]
+ *     summary: Connexion utilisateur
+ *     tags:
+ *       - Auth
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/LoginRequest'
+ *             type: object
+ *             required:
+ *               - username
+ *               - password
+ *             properties:
+ *               username:
+ *                 type: string
+ *                 example: Pinguiz42
+ *               password:
+ *                 type: string
+ *                 example: SuperSecure123!
  *     responses:
  *       200:
- *         description: Connexion réussie, un cookie avec le token est renvoyé
+ *         description: Connexion réussie
  *       400:
- *         description: Identifiants incorrects
+ *         description: Identifiants invalides
  *       500:
- *         description: Erreur lors de la connexion
+ *         description: Erreur serveur
  */
 router.post("/login", validate(userSchema), authController.signin);
 
 /**
  * @swagger
- * /auth/logout:
+ * /logout:
  *   post:
- *     summary: Se déconnecter (réinitialiser le cookie)
- *     tags: [Auth]
+ *     summary: Déconnexion utilisateur
+ *     tags:
+ *       - Auth
  *     security:
- *       - BearerAuth: []
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: Déconnexion réussie
  *       401:
- *         description: Non connecté ou token invalide
+ *         description: Non autorisé
  *       500:
- *         description: Erreur lors de la déconnexion
+ *         description: Erreur serveur
  */
 router.post("/logout", authentification, authController.logout);
-
-/**
- * @swagger
- * components:
- *   schemas:
- *     RegisterRequest:
- *       type: object
- *       properties:
- *         username:
- *           type: string
- *           description: Nom de l'utilisateur (doit être unique)
- *         password:
- *           type: string
- *           description: Mot de passe de l'utilisateur (doit contenir au moins 10 caractères)
- *       required:
- *         - username
- *         - password
- *
- *     LoginRequest:
- *       type: object
- *       properties:
- *         username:
- *           type: string
- *           description: Nom de l'utilisateur
- *         password:
- *           type: string
- *           description: Mot de passe de l'utilisateur
- *       required:
- *         - username
- *         - password
- *
- *   securitySchemes:
- *     BearerAuth:
- *       type: http
- *       scheme: bearer
- *       bearerFormat: JWT
- */

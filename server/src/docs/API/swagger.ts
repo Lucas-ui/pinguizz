@@ -2,15 +2,25 @@ import swaggerJsdoc from "swagger-jsdoc";
 import { Hono } from "hono";
 
 const options = {
-    definition: {
-        openapi: "3.0.0",
-        info: {
-            title: "Documentation API | Abyss",
-            version: "1.0.0",
-        },
+  definition: {
+    openapi: "3.0.0", // <-- Très important, exactement ce champ !
+    info: {
+      title: "Documentation API | Pinguiz",
+      version: "1.0.0",
     },
-    apis: ["./src/routers/*.ts"], // Assure-toi que ce chemin est bon
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT",
+        },
+      },
+    },
+  },
+  apis: ["./src/routers/*.ts"], // Assure-toi que ce chemin est correct
 };
+
 
 const swaggerSpec = swaggerJsdoc(options);
 const docsApp = new Hono();

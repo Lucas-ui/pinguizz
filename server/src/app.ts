@@ -21,7 +21,7 @@ const origin = process.env.CORS_ORIGIN
 
 logger.loggerConsole.info("");
 logger.loggerConsole.info("🚀 Environnement : " + process.env.ENV);
-logger.loggerConsole.info("PMA : http://localhost:8080");
+logger.loggerConsole.info("PMA : http://localhost:9090");
 
 (async () => {
     try {
@@ -39,7 +39,7 @@ logger.loggerConsole.info("PMA : http://localhost:8080");
 const app = new Hono();
 
 if (process.env.ENV === "dev") {
-    logger.loggerConsole.info("Documentation API : http://localhost:3000/api/docs");
+    logger.loggerConsole.info("Documentation API : http://localhost/api/docs");
     swaggerRoute(app);
 }
 
