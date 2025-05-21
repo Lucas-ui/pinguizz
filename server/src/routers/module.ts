@@ -3,5 +3,5 @@ import { moduleController } from "../controllers/module";
 
 export const router = new Hono();
 
-router.get("/", moduleController.get);
+router.get("/:name_theme", moduleController.getByTheme);
  

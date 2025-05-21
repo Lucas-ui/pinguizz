@@ -83,12 +83,18 @@ app.get(
 
 app.get(
   "/api/images/theme/*",
-  serveStatic({ root: "./src/images/theme" })
+  serveStatic({ 
+    root: "./src/images/theme",
+    rewriteRequestPath: (path) => path.replace("/api/images/theme", ""),
+   })
 );
 
 app.get(
   "/api/images/module/*",
-  serveStatic({ root: "./src/images/module" })
+  serveStatic({ 
+    root: "./src/images/module",
+    rewriteRequestPath: (path) => path.replace("/api/images/module", ""),
+   })
 );
 
 app.get("/api", (c: Context) => c.text("API avec Bun et Hono !"));
