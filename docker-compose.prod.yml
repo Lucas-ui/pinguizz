@@ -1,83 +1,81 @@
 services:
-    client:
-        build: ./client
-        container_name: pinguiz-client
-        working_dir: /client
-        command: sh -c "npm install && npm run prod"
-        volumes:
-            - ./client:/client
-        environment:
-            - VITE_API_URL=http://traefik/api
-        networks:
-            - pinguiz-net
-        stop_grace_period: 1s
-        labels:
-            - "traefik.enable=true"
-            - "traefik.http.routers.client.rule=PathPrefix(`/`)"
-            - "traefik.http.routers.client.entrypoints=web"
-            - "traefik.http.services.client.loadbalancer.server.port=5173"
+  client:
+    build: ./client
+    container_name: pinguiz-client
+    working_dir: /client
+    command: sh -c "npm install && npm run prod"
+    volumes:
+      - ./client:/client
+    networks:
+      - pinguiz-net
+    stop_grace_period: 1s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.client.rule=PathPrefix(`/`)"
+      - "traefik.http.routers.client.entrypoints=web"
+      - "traefik.http.services.client.loadbalancer.server.port=4173"
 
-    server:
-        image: oven/bun:1-alpine
-        container_name: pinguiz-server
-        working_dir: /app
-        volumes:
-            - ./server:/app
-        env_file:
-            - server/env/.env.dev
-        networks:
-            - pinguiz-net
-        command: >
-            sh -c "
-              until nc -z mysql 3306; do
-                echo '⏳ Attente de MySQL...';
-                sleep 2;
-              done &&
-              echo '✅ MySQL prêt, lancement du serveur' &&
-              bun --watch src/app.ts
-            "
-        depends_on:
-            - mysql
-        stop_grace_period: 1s
-        restart: always
-        labels:
-            - "traefik.enable=true"
-            - "traefik.http.routers.server.rule=PathPrefix(`/api`)"
-            - "traefik.http.routers.server.entrypoints=web"
-            - "traefik.http.services.server.loadbalancer.server.port=3000"
+  server:
+    image: oven/bun:1-alpine
+    container_name: pinguiz-server
+    working_dir: /app
+    volumes:
+      - ./server:/app
+    env_file:
+      - server/env/.env.dev
+    networks:
+      - pinguiz-net
+    command: >
+      sh -c "
+        until nc -z mysql 3306; do
+          echo '⏳ Attente de MySQL...';
+          sleep 2;
+        done &&
+        echo '✅ MySQL prêt, lancement du serveur' &&
+        bun --watch src/app.ts
+      "
+    depends_on:
+      - mysql
+    stop_grace_period: 1s
+    restart: always
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.server.rule=PathPrefix(`/api`)"
+      - "traefik.http.routers.server.entrypoints=web"
+      - "traefik.http.services.server.loadbalancer.server.port=3000"
 
-    mysql:
-        image: mysql:8
-        container_name: pinguiz-sql
-        env_file:
-            - server/env/.env.dev
-        volumes:
-            - ./server/env/sql/init.sql:/docker-entrypoint-initdb.d/init.sql
-            - db-data-pinguiz:/var/lib/mysql
-        networks:
-            - pinguiz-net
-        stop_grace_period: 1s
+  mysql:
+    image: mysql:8
+    container_name: pinguiz-sql
+    env_file:
+      - server/env/.env.dev
+    volumes:
+      - ./server/env/sql/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - db-data-pinguiz:/var/lib/mysql
+    networks:
+      - pinguiz-net
+    stop_grace_period: 1s
 
-    traefik:
-        image: traefik:v3.4.0
-        container_name: pinguiz-traefik
-        ports:
-            - "80:80"
-        volumes:
-            - /var/run/docker.sock:/var/run/docker.sock:ro
-        command:
-            - "--api.insecure=true"
-            - "--providers.docker=true"
-            - "--entrypoints.web.address=:80"
-        networks:
-            - pinguiz-net
-        depends_on:
-            - client
-            - server
+  traefik:
+    image: traefik:v3.4.0
+    container_name: pinguiz-traefik
+    ports:
+      - "80:80"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--entrypoints.web.address=:80"
+    networks:
+      - pinguiz-net
+    depends_on:
+      - client
+      - server
 
 networks:
-    pinguiz-net:
-        driver: bridge
+  pinguiz-net:
+    driver: bridge
 
 volumes:
-    db-data-pinguiz: {}
+  db-data-pinguiz: {}
