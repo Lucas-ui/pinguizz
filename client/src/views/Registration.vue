@@ -133,15 +133,7 @@ const registration = async () => {
     await registerUser(data);
     router.push("/login");
   } catch (error) {
-    const customError = error?.response?.data?.error?.find(
-      (e) => e.code === "custom"
-    );
-
-    if (customError) {
-      errorMessage.value = customError.message;
-    } else {
-      errorMessage.value = "Une erreur est survenue.";
-    }
+    errorMessage.value = error.response.data.error;
   }
 };
 </script>

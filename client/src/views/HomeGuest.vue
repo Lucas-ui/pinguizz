@@ -107,10 +107,10 @@
           class="group rounded-xl bg-white p-8 shadow-lg transition-all duration-300 hover:shadow-xl hover:-translate-y-1 border border-gray-100 relative overflow-hidden"
         >
           <div
-            class="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-purple-50 opacity-50 group-hover:bg-purple-100 transition-colors duration-300"
+            class="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-orange-50 orange-50 group-hover:bg-orange-100 transition-colors duration-300"
           ></div>
           <div
-            class="relative mb-6 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-purple-400 to-purple-600 text-white shadow-md"
+            class="relative mb-6 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-orange-400 to-orange-600 text-white shadow-md"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -128,7 +128,7 @@
             </svg>
           </div>
           <h3
-            class="mb-3 text-xl font-semibold bg-gradient-to-r from-purple-600 to-purple-800 bg-clip-text text-transparent"
+            class="mb-3 text-xl font-semibold bg-gradient-to-r from-orange-600 to-orange-800 bg-clip-text text-transparent"
           >
             Suivez vos progrès
           </h3>
@@ -151,8 +151,6 @@
         </p>
       </div>
       <div class="flex flex-wrap items-center justify-center gap-4 md:gap-8">
-        <CardTheme />
-        <CardTheme />
         <CardTheme />
       </div>
     </section>

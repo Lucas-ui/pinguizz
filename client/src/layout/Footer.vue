@@ -9,10 +9,17 @@
           Pinguiz
         </p>
       </div>
-      <div class="flex gap-4">
-        <p>Conditions d'utilisation</p>
-        <p>Règlement</p>
+      <div class="flex flex-col sm:items-center sm:flex-row gap-4">
+        <RouterLink to="/terms"
+          ><p class="hover:underline">Conditions d'utilisation</p></RouterLink
+        >
+        <RouterLink to="/rules">
+          <p class="hover:underline">Règlement</p>
+        </RouterLink>
         <p>Contact</p>
+        <a href="https://github.com/Lucas-ui/pinguizz" target="_blank">
+          <i class="ri-github-fill text-3xl text-black"></i>
+        </a>
       </div>
     </aside>
   </footer>

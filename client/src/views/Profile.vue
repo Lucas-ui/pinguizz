@@ -1,7 +1,9 @@
 <template>
   <section class="relative max-w-7xl mx-auto">
-    <div class="flex min-h-screen p-6">
-      <aside class="w-[30%] p-6 rounded-lg flex flex-col items-center">
+    <div class="flex flex-col sm:flex-row min-h-[60vh] p-6">
+      <aside
+        class="w-full sm:w-[30%] p-6 rounded-lg flex flex-col items-center"
+      >
         <img
           v-if="user && user.image"
           class="w-24 h-24 mb-4 rounded-full object-cover shadow-md"
@@ -14,11 +16,15 @@
         <h3 v-if="user" class="text-lg text-center text-black mb-3">
           {{ user.username }}
         </h3>
-        <button class="btn bg-red-700 border-0 hover:bg-red-800 rounded-full">
+        <button
+          class="btn bg-red-700 border-0 hover:bg-red-800 rounded-full"
+          @click="showDeleteModal = true"
+        >
           Supprimer mon compte
         </button>
       </aside>
-      <div class="flex-1 ml-8 p-6 rounded-lg">
+
+      <div class="flex-1 ml-0 sm:ml-8 p-2 sm:p-6 rounded-lg">
         <div class="border-b mb-4">
           <nav class="flex space-x-4 text-black">
             <button
@@ -127,19 +133,54 @@
         </div>
       </div>
     </div>
+    <div
+      v-if="showDeleteModal"
+      class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+    >
+      <div class="bg-white rounded-lg p-6 max-w-md w-full shadow-lg">
+        <h3 class="text-xl font-bold mb-4 text-red-700">
+          Confirmer la suppression
+        </h3>
+        <p class="mb-6 text-gray-700">
+          Êtes-vous sûr de vouloir supprimer définitivement votre compte ? Cette
+          action est irréversible.
+        </p>
+        <div class="flex justify-end space-x-4">
+          <button
+            class="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400 cursor-pointer"
+            @click="showDeleteModal = false"
+          >
+            Annuler
+          </button>
+          <button
+            class="px-4 py-2 rounded bg-red-700 text-white hover:bg-red-800 cursor-pointer"
+            @click="deleteAccount"
+          >
+            Supprimer
+          </button>
+        </div>
+      </div>
+    </div>
   </section>
 </template>
 
 <script setup>
+import { useRouter } from "vue-router";
 import { ref, computed, watch } from "vue";
 import { useAuthStore } from "../stores/authStore";
+import { deleteUser } from "../api/user";
+
+const router = useRouter();
 const authStore = useAuthStore();
 const user = computed(() => authStore.user);
 const apiUrl = import.meta.env.VITE_API_URL || "http://localhost/api";
+
 const currentTab = ref("infos");
 const nom = ref("");
 const prenom = ref("");
 const username = ref("");
+
+const showDeleteModal = ref(false);
 
 watch(
   user,
@@ -152,4 +193,15 @@ watch(
   },
   { immediate: true }
 );
+
+const deleteAccount = async () => {
+  showDeleteModal.value = false;
+  try {
+    await deleteUser();
+    authStore.logout();
+    router.push("/login");
+  } catch (error) {
+    console.error(error);
+  }
+};
 </script>

@@ -92,6 +92,7 @@ const login = async () => {
     authStore.setUser(userResponse.data);
     router.push("/");
   } catch (error) {
+    errorMessage.value = error.response.data.error;
     console.error(error);
   }
 };

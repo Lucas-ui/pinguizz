@@ -26,11 +26,13 @@
           <p class="text-black">
             {{ module.description }}
           </p>
-          <button
-            class="btn bg-[#f35e21] hover:bg-[#e55215] border-0 rounded-full"
-          >
-            Démarrer le quiz
-          </button>
+          <RouterLink :to="`/quiz/${module.name}`">
+            <button
+              class="btn bg-[#f35e21] hover:bg-[#e55215] border-0 rounded-full"
+            >
+              Démarrer le quiz
+            </button>
+          </RouterLink>
         </div>
       </div>
     </div>
