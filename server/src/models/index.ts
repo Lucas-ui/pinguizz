@@ -7,8 +7,10 @@ import { Partie } from "./partie";
 import { Question } from "./question";
 import { Reponse } from "./reponse";
 import { Type } from "./type";
+import { Posseder } from './posseder';
+import { Contenir } from './contenir';
 
-export const models = [User, Theme, Module, Partie, Question, Reponse, Type];
+export const models = [User, Theme, Module, Partie, Question, Reponse, Type, Posseder, Contenir];
 
 const modelMap = {
         User,
@@ -17,7 +19,9 @@ const modelMap = {
         Partie,
         Question,
         Reponse,
-        Type
+        Type,
+        Posseder,
+        Contenir
     };
 
 export async function initializeAllModels(sequelize: Sequelize) {
@@ -30,4 +34,5 @@ export async function initializeAllModels(sequelize: Sequelize) {
     }
 }
 
-export { User, Theme, Module, Partie, Question, Reponse, Type };
+export { User, Theme, Module, Partie, Question, Reponse, Type, Posseder, Contenir };
+

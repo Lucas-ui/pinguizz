@@ -34,6 +34,12 @@ class Reponse extends Model<ReponseAttributes, ReponseCreationAttributes> implem
   }
 
   public static setupAssociations(models: any) {
+    Reponse.belongsToMany(models.Question, {
+      through: models.Posseder,
+      foreignKey: 'id_reponse',
+      otherKey: 'id_question',
+      as: 'questionsPossedees',
+    });
   }
 }
 

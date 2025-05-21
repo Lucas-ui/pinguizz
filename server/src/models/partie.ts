@@ -23,7 +23,7 @@ class Partie extends Model<PartieAttributes, PartieCreationAttributes> implement
                     allowNull: false,
                 },
                 score: {
-                    type: DataTypes.INTEGER({ length: 2 }),
+                    type: DataTypes.INTEGER,
                     allowNull: false,
                 },
                 id_user: {
@@ -41,11 +41,25 @@ class Partie extends Model<PartieAttributes, PartieCreationAttributes> implement
     }
 
     public static setupAssociations(models: any) {
+
         Partie.belongsTo(models.User, {
             foreignKey: 'id_user',
             targetKey: 'username',
         });
+
+        Partie.hasMany(models.Contenir, {
+            foreignKey: 'id_partie',
+            as: 'contenus',
+        });
+
+        Partie.belongsToMany(models.Question, {
+            through: models.Contenir,
+            foreignKey: 'id_partie',
+            otherKey: 'id_question',
+            as: 'questionsContenues',
+        });
     }
+
 }
 
 export { Partie };

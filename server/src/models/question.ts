@@ -46,6 +46,7 @@ class Question extends Model<QuestionAttributes, QuestionCreationAttributes> imp
   }
 
   public static setupAssociations(models: any) {
+
     Question.belongsTo(models.Module, {
       foreignKey: 'id_module',
       targetKey: 'id',
@@ -55,7 +56,27 @@ class Question extends Model<QuestionAttributes, QuestionCreationAttributes> imp
       foreignKey: 'id_type',
       targetKey: 'id',
     });
+
+    Question.hasMany(models.Posseder, {
+      foreignKey: 'id_question',
+      as: 'posseder',
+    });
+
+    Question.belongsToMany(models.Reponse, {
+      through: models.Posseder,
+      foreignKey: 'id_question',
+      otherKey: 'id_reponse',
+      as: 'reponsesPossedees',
+    });
+
+    Question.belongsToMany(models.Partie, {
+      through: models.Contenir,
+      foreignKey: 'id_question',
+      otherKey: 'id_partie',
+      as: 'partiesContenantes',
+    });
   }
+
 }
 
 export { Question };
