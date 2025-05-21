@@ -13,11 +13,6 @@
       <SearchTheme />
       <div class="flex flex-wrap items-center justify-center gap-4 md:gap-8">
         <CardTheme />
-        <CardTheme />
-        <CardTheme />
-        <CardTheme />
-        <CardTheme />
-        <CardTheme />
       </div>
     </div>
   </div>

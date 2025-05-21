@@ -4,7 +4,7 @@
   >
     <div class="w-full p-6 m-auto rounded-md lg:max-w-lg">
       <Logo class="mx-auto" width="130px" height="auto" />
-      <h1 class="text-3xl font-semibold text-center text-black">
+      <h1 class="text-3xl font-semibold text-center text-black mb-4">
         Se connecter à Pinguiz
       </h1>
       <div

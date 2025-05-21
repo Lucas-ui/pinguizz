@@ -64,6 +64,7 @@
           <div>
             <label class="block text-sm font-medium text-gray-700">Nom</label>
             <input
+              v-model="nom"
               type="text"
               class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm p-2 text-black"
             />
@@ -73,6 +74,7 @@
               >Prénom</label
             >
             <input
+              v-model="prenom"
               type="text"
               class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm p-2 text-black"
             />
@@ -82,6 +84,7 @@
               >Identifiant</label
             >
             <input
+              v-model="username"
               type="text"
               class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm p-2 text-black"
             />
@@ -128,10 +131,25 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, watch } from "vue";
 import { useAuthStore } from "../stores/authStore";
 const authStore = useAuthStore();
 const user = computed(() => authStore.user);
 const apiUrl = import.meta.env.VITE_API_URL || "http://localhost/api";
 const currentTab = ref("infos");
+const nom = ref("");
+const prenom = ref("");
+const username = ref("");
+
+watch(
+  user,
+  (val) => {
+    if (val) {
+      nom.value = val.name || "";
+      prenom.value = val.firstname || "";
+      username.value = val.username || "";
+    }
+  },
+  { immediate: true }
+);
 </script>
