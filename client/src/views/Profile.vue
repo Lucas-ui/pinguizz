@@ -3,13 +3,17 @@
     <div class="flex min-h-screen p-6">
       <aside class="w-[30%] p-6 rounded-lg flex flex-col items-center">
         <img
-          class="w-24 h-24 mb-4 rounded-full object-cover"
-          src="../assets/images/pinguizz_logo.png"
-          alt="Logo"
+          v-if="user && user.image"
+          class="w-24 h-24 mb-4 rounded-full object-cover shadow-md"
+          :src="`${apiUrl}/images/avatar/${user.image}`"
+          alt="Image de profil"
         />
-        <h2 class="text-xl font-bold text-center text-black mb-3">
-          Nom d'utilisateur
+        <h2 v-if="user" class="text-xl font-bold text-center text-black mb-3">
+          {{ user.firstname }} {{ user.name }}
         </h2>
+        <h3 v-if="user" class="text-lg text-center text-black mb-3">
+          {{ user.username }}
+        </h3>
         <button class="btn bg-red-700 border-0 hover:bg-red-800 rounded-full">
           Supprimer mon compte
         </button>
@@ -75,7 +79,7 @@
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700"
-              >Identifiants</label
+              >Identifiant</label
             >
             <input
               type="text"
@@ -124,7 +128,10 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
-
+import { ref, computed } from "vue";
+import { useAuthStore } from "../stores/authStore";
+const authStore = useAuthStore();
+const user = computed(() => authStore.user);
+const apiUrl = import.meta.env.VITE_API_URL || "http://localhost/api";
 const currentTab = ref("infos");
 </script>

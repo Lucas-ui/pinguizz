@@ -27,4 +27,7 @@ export default defineConfig({
     interval: 1000,
     binaryInterval: 3000,
   },
+  preview: {
+    allowedHosts: ["pinguiz.lan"],
+  },
 });

@@ -69,20 +69,89 @@
         </li>
       </ul>
     </div>
-    <div class="navbar-end">
-      <RouterLink to="/login" class="btn btn-primary rounded-full"
-        >Se connecter</RouterLink
+    <div class="navbar-end relative">
+      <RouterLink
+        to="/login"
+        class="btn btn-primary rounded-full"
+        v-if="!isAuthenticated"
       >
-      <RouterLink to="/profile">
-        <p class="text-black underline">Profil</p>
+        Se connecter
       </RouterLink>
+      <div v-if="isAuthenticated" class="relative">
+        <img
+          v-if="user && user.image"
+          class="w-12 h-12 rounded-full object-cover cursor-pointer shadow-md"
+          :src="`${apiUrl}/images/avatar/${user.image}`"
+          alt="Image de profil"
+          @click="toggleMenu"
+        />
+        <div
+          v-if="showMenu"
+          class="absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-lg border z-20"
+        >
+          <ul class="flex flex-col py-2">
+            <li>
+              <RouterLink
+                to="/profile"
+                class="px-4 py-2 hover:bg-gray-100 text-sm text-gray-800 block"
+                @click="hideModalOnClick"
+              >
+                Profil
+              </RouterLink>
+            </li>
+            <li>
+              <button
+                class="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm text-gray-800"
+                @click="logOutAndClose"
+              >
+                Déconnexion
+              </button>
+            </li>
+          </ul>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
+import { ref, computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import Logo from "../components/Logo.vue";
+import { useAuthStore } from "../stores/authStore";
+import { infosUser } from "../api/auth";
+
+const router = useRouter();
+
+const authStore = useAuthStore();
+const isAuthenticated = computed(() => authStore.isAuthenticated);
+const user = computed(() => authStore.user);
+const apiUrl = import.meta.env.VITE_API_URL || "http://localhost/api";
+
+const showMenu = ref(false);
+
+const toggleMenu = () => {
+  showMenu.value = !showMenu.value;
+};
+
+const closeMenu = () => {
+  showMenu.value = false;
+};
+
+const hideModalOnClick = () => {
+  closeMenu();
+};
+
+const logOut = () => {
+  authStore.logout();
+  authStore.checkAuth();
+  router.push("/");
+};
+
+const logOutAndClose = () => {
+  closeMenu();
+  logOut();
+};
 </script>
 
 <style scoped>

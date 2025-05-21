@@ -2,9 +2,7 @@
   <div class="relative min-h-screen py-10 md:py-12">
     <div class="container relative">
       <div class="mb-10 text-center">
-        <h1
-          class="mb-4 text-4xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent !text-transparent md:text-5xl"
-        >
+        <h1 class="mb-4 text-4xl text-[#0e5b8b] font-bold md:text-5xl">
           Nos thèmes
         </h1>
         <p class="mx-auto mb-8 max-w-2xl text-gray-600">
