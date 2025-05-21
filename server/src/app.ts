@@ -5,6 +5,7 @@ import { router as userRouter } from "./routers/user";
 import { router as authRouter } from "./routers/auth";
 import { router as themeRouter } from "./routers/theme";
 import { router as moduleRouter } from "./routers/module";
+import { router as partyRouter } from "./routers/partie";
 
 import { logger } from "./class/logger";
 import Database from "./database/db";
@@ -68,6 +69,7 @@ app.use("*", async (c: Context, next: Next) => {
 });
 
 app.route("/api/users", userRouter);
+app.route("/api/party", partyRouter);
 app.route("/api/auth", authRouter);
 app.route("/api/theme", themeRouter);
 app.route("/api/module", moduleRouter);
