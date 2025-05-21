@@ -54,6 +54,7 @@ services:
         volumes:
             - ./server/env/sql/init.sql:/docker-entrypoint-initdb.d/init.sql
             - db-data-pinguiz:/var/lib/mysql
+        command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
         networks:
             - pinguiz-net
         stop_grace_period: 1s

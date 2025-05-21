@@ -3,6 +3,8 @@ import { cors } from "hono/cors";
 import { serveStatic } from "hono/bun";
 import { router as userRouter } from "./routers/user";
 import { router as authRouter } from "./routers/auth";
+import { router as themeRouter } from "./routers/theme";
+import { router as moduleRouter } from "./routers/module";
 
 import { logger } from "./class/logger";
 import Database from "./database/db";
@@ -67,12 +69,16 @@ app.use("*", async (c: Context, next: Next) => {
 
 app.route("/api/users", userRouter);
 app.route("/api/auth", authRouter);
-
+app.route("/api/theme", themeRouter);
+app.route("/api/module", moduleRouter);
 
 // Images
 app.get(
   "/api/images/avatar/*",
-  serveStatic({ root: "./src/images/avatar" })
+  serveStatic({
+    root: "./src/images/avatar",
+    rewriteRequestPath: (path) => path.replace("/api/images/avatar", ""),
+  })
 );
 
 app.get(
