@@ -12,9 +12,8 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.client.rule=PathPrefix(`/`)"
-      - "traefik.http.routers.client.entrypoints=websecure" # Changé en websecure
+      - "traefik.http.routers.client.entrypoints=web"
       - "traefik.http.services.client.loadbalancer.server.port=4173"
-      - "traefik.http.routers.client.tls=true" # Activer TLS
 
   server:
     image: oven/bun:1-alpine
@@ -42,9 +41,8 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.server.rule=PathPrefix(`/api`)"
-      - "traefik.http.routers.server.entrypoints=websecure" # Changé en websecure
+      - "traefik.http.routers.server.entrypoints=web"
       - "traefik.http.services.server.loadbalancer.server.port=3000"
-      - "traefik.http.routers.server.tls=true" # Activer TLS
 
   mysql:
     image: mysql:8
@@ -63,16 +61,12 @@ services:
     container_name: pinguiz-traefik
     ports:
       - "80:80"
-      - "443:443" # Ajout du port HTTPS
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./traefik/certs:/certs:ro # Montage des certificats
     command:
       - "--api.insecure=true"
       - "--providers.docker=true"
       - "--entrypoints.web.address=:80"
-      - "--entrypoints.websecure.address=:443" # Point d'entrée HTTPS
-      - "--entrypoints.websecure.http.tls=true" # Activer TLS pour websecure
     networks:
       - pinguiz-net
     depends_on:

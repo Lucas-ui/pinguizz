@@ -3,7 +3,7 @@ services:
     build: ./client
     container_name: pinguiz-client
     working_dir: /client
-    command: sh -c "npm install && npm run prod"
+    command: sh -c "npm install && npm run dev"
     volumes:
       - ./client:/client
     networks:
@@ -13,7 +13,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.client.rule=PathPrefix(`/`)"
       - "traefik.http.routers.client.entrypoints=websecure" # Changé en websecure
-      - "traefik.http.services.client.loadbalancer.server.port=4173"
+      - "traefik.http.services.client.loadbalancer.server.port=5173"
       - "traefik.http.routers.client.tls=true" # Activer TLS
 
   server:
@@ -54,6 +54,7 @@ services:
     volumes:
       - ./server/env/sql/init.sql:/docker-entrypoint-initdb.d/init.sql
       - db-data-pinguiz:/var/lib/mysql
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     networks:
       - pinguiz-net
     stop_grace_period: 1s
@@ -64,6 +65,7 @@ services:
     ports:
       - "80:80"
       - "443:443" # Ajout du port HTTPS
+      - "8080:8080"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./traefik/certs:/certs:ro # Montage des certificats
