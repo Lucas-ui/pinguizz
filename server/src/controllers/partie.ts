@@ -1,8 +1,8 @@
 import { type Context } from "hono";
 import { Module } from "../models/module";
 import { User } from "../models/user";
-import { Theme } from "../models/theme";
 import { Question } from "../models/question";
+import {Theme} from "../models/theme"
 import { Posseder } from "../models/posseder";
 import { Reponse } from "../models/reponse";
 import { Contenir } from "../models/contenir";
@@ -220,59 +220,64 @@ class PartieController {
 
   async all(c: Context) {
   try {
+    // 1. Récupérer toutes les parties avec l'utilisateur
     const parties = await Partie.findAll({
-      include: [
-        {
-          model: User,
-          attributes: ["username", "name", "firstname"],
-        },
-        {
-          model: Contenir,
-          as: "contenus",
-          include: [
-            {
-              model: Question,
-              include: [
-                {
-                  model: Module,
-                  attributes: ["name"],
-                  include: [
-                    {
-                      model: Theme,
-                      attributes: ["name"],
-                    },
-                  ],
-                },
-              ],
-            },
-            {
-              model: Reponse,
-              attributes: ["intitule"],
-            },
-          ],
-        },
-      ],
+      include: [{ model: User, attributes: ['username', 'name', 'firstname'] }],
     });
 
-    // Transformation des données pour rendre le JSON plus lisible
-    const formatted = parties.map(partie => ({
-      id: partie.id,
-      score: partie.score,
-      user: partie.User ? {
-        username: partie.User.username,
-        name: partie.User.name,
-        firstname: partie.User.firstname,
-      } : null,
-      questions: partie.contenus?.map(contenu => ({
-        questionId: contenu.id_question,
-        reponseId: contenu.id_reponse,
-        module: contenu.Question?.Module?.name,
-        theme: contenu.Question?.Module?.Theme?.name,
-        reponse: contenu.Reponse?.intitule,
-      })) ?? [],
-    }));
+    // 2. Récupérer tous les contenus (Contenir) pour ces parties en une requête
+    const partieIds = parties.map(p => p.id);
 
-    return c.json(formatted, 200);
+    const contenirs = await Contenir.findAll({
+      where: { id_partie: partieIds },
+      include: [
+        {
+          model: Question,
+          include: [
+            {
+              model: Module,
+              include: [{ model: Theme }]
+            }
+          ]
+        },
+        {
+          model: Reponse,
+        }
+      ]
+    });
+
+    // 3. Regrouper les contenirs par partie
+    const contenirsByPartie: Record<string, any[]> = {};
+    contenirs.forEach(c => {
+      if (!contenirsByPartie[c.id_partie]) contenirsByPartie[c.id_partie] = [];
+      contenirsByPartie[c.id_partie].push(c);
+    });
+
+    // 4. Construire la réponse complète
+    const result = parties.map(partie => {
+      const contenus = contenirsByPartie[partie.id] ?? [];
+
+      // On suppose que toutes les questions sont du même module/thème (sinon tu peux adapter)
+      const module = contenus.length > 0 ? contenus[0].Question.Module : null;
+      const theme = module ? module.Theme : null;
+
+      return {
+        id: partie.id,
+        score: partie.score,
+        user: partie.User,
+        module: module ? { id: module.id, name: module.name } : null,
+        theme: theme ? { id: theme.id, name: theme.name } : null,
+        contenus: contenus.map(contenu => ({
+          questionId: contenu.id_question,
+          questionText: contenu.Question.text,
+          responseId: contenu.id_reponse,
+          responseText: contenu.Reponse.intitule,
+        })),
+      };
+    });
+
+    return c.json(result, 200);
+
   } catch (error) {
     console.error("[admin/all] Erreur :", error);
     return c.json({ error: "Erreur serveur" }, 500);
