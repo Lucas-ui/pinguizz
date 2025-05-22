@@ -71,7 +71,6 @@ class PartieController {
   async result(c: Context) {
     try {
       const body = await c.req.json();
-      console.log("Valeur du body : ", body);
 
       const userId = c.get("userId");
 

@@ -32,7 +32,6 @@ class UserController {
             if (!userId) {
             return c.json({ error: "Utilisateur non authentifié." }, 401);
             }
-
             const { newPassword, confirmPassword } = await c.req.json();
 
             if (!newPassword || !confirmPassword) {
@@ -63,13 +62,95 @@ class UserController {
             return c.json({ message: "Mot de passe mis à jour avec succès." }, 200);
 
         } catch (err) {
-            console.error("Erreur dans password:", err);
             return c.json({ error: "Erreur serveur." }, 500);
         }
     }
 
+    async name(c: Context) {
+        try {
+            const userId = c.get("userId");
+            if (!userId) {
+            return c.json({ error: "Utilisateur non authentifié." }, 401);
+            }
 
+            const { name } = await c.req.json();
 
+            if (!name || typeof name !== "string" || name.trim().length === 0) {
+            return c.json({ error: "Nom invalide." }, 400);
+            }
+
+            const user = await User.findOne({ where: { username: userId } });
+            if (!user) {
+            return c.json({ error: "Utilisateur introuvable." }, 404);
+            }
+
+            user.name = name.trim();
+            await user.save();
+
+            return c.json({ message: "Nom mis à jour avec succès." }, 200);
+        } catch (err) {
+            return c.json({ error: "Erreur serveur." }, 500);
+        }
+    }
+
+    async firstname(c: Context) {
+        try {
+            const userId = c.get("userId");
+            if (!userId) {
+            return c.json({ error: "Utilisateur non authentifié." }, 401);
+            }
+
+            const { firstname } = await c.req.json();
+
+            if (!firstname || typeof firstname !== "string" || firstname.trim().length === 0) {
+            return c.json({ error: "Prénom invalide." }, 400);
+            }
+
+            const user = await User.findOne({ where: { username: userId } });
+            if (!user) {
+            return c.json({ error: "Utilisateur introuvable." }, 404);
+            }
+
+            user.firstname = firstname.trim();
+            await user.save();
+
+            return c.json({ message: "Prénom mis à jour avec succès." }, 200);
+        } catch (err) {
+            return c.json({ error: "Erreur serveur." }, 500);
+        }
+    }
+
+    async username(c: Context) {
+        try {
+            const userId = c.get("userId");
+            if (!userId) {
+                return c.json({ error: "Utilisateur non authentifié." }, 401);
+            }
+
+            const { username } = await c.req.json();
+
+            if (!username || typeof username !== "string" || username.trim().length === 0) {
+                return c.json({ error: "Nom d'utilisateur invalide." }, 400);
+            }
+
+            const existingUser = await User.findOne({ where: { username: username.trim() } });
+            if (existingUser && existingUser.username !== userId) {
+                return c.json({ error: "Nom d'utilisateur déjà utilisé." }, 409);
+            }
+
+            const user = await User.findOne({ where: { username: userId } });
+            if (!user) {
+                return c.json({ error: "Utilisateur introuvable." }, 404);
+            }
+
+            user.username = username.trim();
+            await user.save();
+
+            return c.json({ message: "Nom d'utilisateur mis à jour avec succès." }, 200);
+        } catch (err) {
+            return c.json({ error: "Erreur serveur." }, 500);
+        }
+    }
 }
 
 export const userController = new UserController();

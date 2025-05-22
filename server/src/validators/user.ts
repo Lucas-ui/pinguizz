@@ -9,7 +9,7 @@ export const userSchema = z.object({
       .transform((val) => val.charAt(0).toUpperCase() + val.slice(1).toLowerCase()),
     password: z
         .string()
-        .min(10, "Le mot de passe doit contenir au moins 10 caractères."),
+        .min(12, "Le mot de passe doit contenir au moins 12 caractères."),
 });
 
 export const registerSchema = z
@@ -32,11 +32,11 @@ export const registerSchema = z
       .max(40, 'Le prénom ne doit pas dépasser 40 caractères.'),
     password: z
       .string()
-      .min(10, 'Le mot de passe doit contenir au moins 10 caractères.')
+      .min(12, 'Le mot de passe doit contenir au moins 12 caractères.')
       .max(60, 'Le mot de passe ne doit pas dépasser 60 caractères.'),
     confirmPassword: z
       .string()
-      .min(10, 'La confirmation du mot de passe doit contenir au moins 10 caractères.')
+      .min(12, 'La confirmation du mot de passe doit contenir au moins 12 caractères.')
       .max(60, 'La confirmation du mot de passe ne doit pas dépasser 60 caractères.'),
     isAdmin: z.boolean().optional().default(false)
   })
