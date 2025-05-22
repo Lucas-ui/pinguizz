@@ -32,6 +32,7 @@ services:
           sleep 2;
         done &&
         echo '✅ MySQL prêt, lancement du serveur' &&
+        bun install &&
         bun --watch src/app.ts
       "
     depends_on:
