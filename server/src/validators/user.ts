@@ -12,6 +12,31 @@ export const userSchema = z.object({
         .min(12, "Le mot de passe doit contenir au moins 12 caractères."),
 });
 
+export const firstnameSchema = z.object({
+    firstname: z
+      .string()
+      .trim()
+      .min(1, 'Le prénom est requis.')
+      .max(40, 'Le prénom ne doit pas dépasser 40 caractères.'),
+});
+
+export const nameSchema = z.object({
+    name: z
+      .string()
+      .trim()
+      .min(1, 'Le nom est requis.')
+      .max(40, 'Le nom ne doit pas dépasser 40 caractères.'),
+});
+
+export const usernameSchema = z.object({
+    username: z
+      .string()
+      .trim()
+      .min(1, 'Le nom d’utilisateur est requis.')
+      .max(40, 'Le nom d’utilisateur ne doit pas dépasser 40 caractères.')
+      .transform((val) => val.charAt(0).toUpperCase() + val.slice(1).toLowerCase())
+});
+
 export const registerSchema = z
   .object({
     username: z

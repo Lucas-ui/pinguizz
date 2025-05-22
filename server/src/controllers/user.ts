@@ -151,6 +151,40 @@ class UserController {
             return c.json({ error: "Erreur serveur." }, 500);
         }
     }
+
+    async all(c: Context) {
+        try {
+            const users = await User.findAll({
+            attributes: { exclude: ['password'] }
+            });
+
+            return c.json({ users }, 200);
+        } catch (err) {
+            return c.json({ error: "Erreur serveur" }, 500);
+        }
+    }
+
+    async deleteByUsername(c: Context) {
+        try {
+            const { username } = c.req.param();
+
+            if (!username) {
+            return c.json({ error: "Nom d'utilisateur manquant." }, 400);
+            }
+
+            const user = await User.findOne({ where: { username } });
+
+            if (!user) {
+            return c.json({ error: "Utilisateur introuvable." }, 404);
+            }
+
+            await user.destroy();
+
+            return c.json({ message: `Utilisateur '${username}' supprimé avec succès.` }, 200);
+        } catch (err) {
+            return c.json({ error: "Erreur serveur" }, 500);
+        }
+    }
 }
 
 export const userController = new UserController();
