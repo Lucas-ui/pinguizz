@@ -24,6 +24,7 @@ class UserController {
         });
         return c.json({}, 200);
     }
+
 }
 
 export const userController = new UserController();

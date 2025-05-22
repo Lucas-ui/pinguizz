@@ -99,6 +99,14 @@ app.get(
    })
 );
 
+app.get(
+  "/api/images/quiz/*",
+  serveStatic({ 
+    root: "./src/images/quiz",
+    rewriteRequestPath: (path) => path.replace("/api/images/quiz", ""),
+   })
+);
+
 app.get("/api", (c: Context) => c.text("API avec Bun et Hono !"));
 
 export default {

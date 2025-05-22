@@ -70,71 +70,77 @@ class PartieController {
   }
 
   async result(c: Context) {
-    try {
-      const body = await c.req.json();
-      console.log("Valeur du body : ", body);
+  try {
+    const body = await c.req.json();
+    console.log("Valeur du body : ", body);
 
-      const userId = c.get("userId"); // récupéré depuis le middleware
+    const userId = c.get("userId"); // récupéré depuis le middleware
 
-      if (!body || typeof body !== "object") {
-        return c.json({ error: "Requête invalide. Le corps de la requête est vide ou incorrect." }, 400);
-      }
+    if (!body || typeof body !== "object") {
+      return c.json({ error: "Requête invalide. Le corps de la requête est vide ou incorrect." }, 400);
+    }
 
-      let correctCount = 0;
-      const detailedResults = [];
+    let correctCount = 0;
+    const detailedResults = [];
 
-      for (const questionId in body) {
-        const responseValue = body[questionId];
+    for (const questionId in body) {
+      const responseValue = body[questionId];
+      const responseIds = Array.isArray(responseValue) ? responseValue : [responseValue];
 
-        const responseIds = Array.isArray(responseValue) ? responseValue : [responseValue];
+      for (const responseId of responseIds) {
+        const posseder = await Posseder.findOne({
+          where: {
+            id_question: questionId,
+            id_reponse: responseId,
+          }
+        });
 
-        for (const responseId of responseIds) {
-          const posseder = await Posseder.findOne({
-            where: {
-              id_question: questionId,
-              id_reponse: responseId,
-            }
-          });
+        const isCorrect = posseder?.isCorrect === true;
+        if (isCorrect) correctCount++;
 
-          const isCorrect = posseder?.isCorrect === true;
-          if (isCorrect) correctCount++;
+        // 🔍 Récupérer texte de la question et de la réponse
+        const question = await Question.findOne({ where: { id: questionId } });
+        const reponse = await Reponse.findOne({ where: { id: responseId } });
 
-          detailedResults.push({
-            questionId,
-            selectedResponseId: responseId,
-            isCorrect,
-          });
-        }
-      }
-
-      const partieId = identifier.uuidV4();
-
-      await Partie.create({
-        id: partieId,
-        score: correctCount,
-        id_user: userId,
-      });
-
-      for (const { questionId, selectedResponseId } of detailedResults) {
-        await Contenir.create({
-          id_partie: partieId,
-          id_question: questionId,
-          id_reponse: selectedResponseId,
+        detailedResults.push({
+          questionId,
+          questionText: question?.text || "Question introuvable",
+          selectedResponseId: responseId,
+          selectedResponseText: reponse?.intitule || "Réponse introuvable",
+          isCorrect,
         });
       }
-
-      return c.json({
-        score: correctCount,
-        total: detailedResults.length,
-        partieId,
-        details: detailedResults
-      }, 200);
-
-    } catch (err) {
-      console.error("Erreur dans result:", err);
-      return c.json({ error: "Erreur serveur" }, 500);
     }
+
+    const partieId = identifier.uuidV4();
+
+    await Partie.create({
+      id: partieId,
+      score: correctCount,
+      id_user: userId,
+    });
+
+    for (const { questionId, selectedResponseId } of detailedResults) {
+      await Contenir.create({
+        id_partie: partieId,
+        id_question: questionId,
+        id_reponse: selectedResponseId,
+      });
+    }
+
+    return c.json({
+      score: correctCount,
+      total: detailedResults.length,
+      partieId,
+      details: detailedResults
+    }, 200);
+
+  } catch (err) {
+    console.error("Erreur dans result:", err);
+    return c.json({ error: "Erreur serveur" }, 500);
   }
+}
+
 
 
 
