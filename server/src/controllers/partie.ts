@@ -220,63 +220,39 @@ class PartieController {
 
   async all(c: Context) {
   try {
-    // 1. Récupérer toutes les parties avec l'utilisateur
+    // 1. Récupérer les parties + user + contenus
     const parties = await Partie.findAll({
-      include: [{ model: User, attributes: ['username', 'name', 'firstname'] }],
-    });
-
-    // 2. Récupérer tous les contenus (Contenir) pour ces parties en une requête
-    const partieIds = parties.map(p => p.id);
-
-    const contenirs = await Contenir.findAll({
-      where: { id_partie: partieIds },
       include: [
         {
-          model: Question,
-          include: [
-            {
-              model: Module,
-              include: [{ model: Theme }]
-            }
-          ]
+          model: User,
+          attributes: ["username", "name", "firstname"],
         },
         {
-          model: Reponse,
+          model: Contenir,
+          as: "contenus",
+        },
+      ],
+    });
+
+    // 2. Récupérer modules et thèmes associés
+    // On suppose que tu as un modèle Module et un modèle Theme
+    // Sinon adapte les noms
+    const modules = await Module.findAll({
+      include: [
+        {
+          model: Theme,  // Associe les thèmes aux modules
+          as: 'theme',   // ou autre alias selon ton modèle
+          attributes: ['id', 'name'], // ou intitule, etc.
         }
-      ]
+      ],
+      attributes: ['id', 'name'] // les champs utiles
     });
 
-    // 3. Regrouper les contenirs par partie
-    const contenirsByPartie: Record<string, any[]> = {};
-    contenirs.forEach(c => {
-      if (!contenirsByPartie[c.id_partie]) contenirsByPartie[c.id_partie] = [];
-      contenirsByPartie[c.id_partie].push(c);
-    });
-
-    // 4. Construire la réponse complète
-    const result = parties.map(partie => {
-      const contenus = contenirsByPartie[partie.id] ?? [];
-
-      // On suppose que toutes les questions sont du même module/thème (sinon tu peux adapter)
-      const module = contenus.length > 0 ? contenus[0].Question.Module : null;
-      const theme = module ? module.Theme : null;
-
-      return {
-        id: partie.id,
-        score: partie.score,
-        user: partie.User,
-        module: module ? { id: module.id, name: module.name } : null,
-        theme: theme ? { id: theme.id, name: theme.name } : null,
-        contenus: contenus.map(contenu => ({
-          questionId: contenu.id_question,
-          questionText: contenu.Question.text,
-          responseId: contenu.id_reponse,
-          responseText: contenu.Reponse.intitule,
-        })),
-      };
-    });
-
-    return c.json(result, 200);
+    // 3. Retourner les deux résultats
+    return c.json({
+      parties,
+      modules,
+    }, 200);
 
   } catch (error) {
     console.error("[admin/all] Erreur :", error);
