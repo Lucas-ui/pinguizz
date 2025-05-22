@@ -13,7 +13,7 @@ export const authentification = async (c: Context, next: Next) => {
 
         const decoded = verify(token, process.env.JWT_SECRET!) as {
             userId: string;
-            role?: string;
+            isAdmin?: string;
         };
 
         if (!decoded || !decoded.userId) {
@@ -21,7 +21,7 @@ export const authentification = async (c: Context, next: Next) => {
         }
 
         c.set("userId", decoded.userId);
-        c.set("userRole", decoded.role || "user");
+        c.set("userRole", decoded.isAdmin || 0);
 
         await next();
     } catch (error) {

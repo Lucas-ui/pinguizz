@@ -30,21 +30,21 @@ class UserController {
         try {
             const userId = c.get("userId");
             if (!userId) {
-            return c.json({ error: "Utilisateur non authentifié." }, 401);
+                return c.json({ error: "Utilisateur non authentifié." }, 401);
             }
             const { newPassword, confirmPassword } = await c.req.json();
 
             if (!newPassword || !confirmPassword) {
-            return c.json({ error: "Nouveau mot de passe et confirmation requis." }, 400);
+                return c.json({ error: "Nouveau mot de passe et confirmation requis." }, 400);
             }
 
             if (newPassword !== confirmPassword) {
-            return c.json({ error: "Les mots de passe ne correspondent pas." }, 400);
+                return c.json({ error: "Les mots de passe ne correspondent pas." }, 400);
             }
 
             const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{12,}$/;
             if (!passwordRegex.test(newPassword)) {
-            return c.json({
+                return c.json({
                 error: "Mot de passe trop faible. Il doit contenir au moins 12 caractères, une majuscule, une minuscule, un chiffre et un caractère spécial."
             }, 400);
             }
@@ -53,7 +53,7 @@ class UserController {
 
             const user = await User.findOne({ where: { username: userId } });
             if (!user) {
-            return c.json({ error: "Utilisateur introuvable." }, 404);
+                return c.json({ error: "Utilisateur introuvable." }, 404);
             }
 
             user.password = hashedPassword;
@@ -70,18 +70,18 @@ class UserController {
         try {
             const userId = c.get("userId");
             if (!userId) {
-            return c.json({ error: "Utilisateur non authentifié." }, 401);
+                return c.json({ error: "Utilisateur non authentifié." }, 401);
             }
 
             const { name } = await c.req.json();
 
             if (!name || typeof name !== "string" || name.trim().length === 0) {
-            return c.json({ error: "Nom invalide." }, 400);
+                return c.json({ error: "Nom invalide." }, 400);
             }
 
             const user = await User.findOne({ where: { username: userId } });
             if (!user) {
-            return c.json({ error: "Utilisateur introuvable." }, 404);
+                return c.json({ error: "Utilisateur introuvable." }, 404);
             }
 
             user.name = name.trim();
@@ -97,18 +97,18 @@ class UserController {
         try {
             const userId = c.get("userId");
             if (!userId) {
-            return c.json({ error: "Utilisateur non authentifié." }, 401);
+                return c.json({ error: "Utilisateur non authentifié." }, 401);
             }
 
             const { firstname } = await c.req.json();
 
             if (!firstname || typeof firstname !== "string" || firstname.trim().length === 0) {
-            return c.json({ error: "Prénom invalide." }, 400);
+                return c.json({ error: "Prénom invalide." }, 400);
             }
 
             const user = await User.findOne({ where: { username: userId } });
             if (!user) {
-            return c.json({ error: "Utilisateur introuvable." }, 404);
+                return c.json({ error: "Utilisateur introuvable." }, 404);
             }
 
             user.firstname = firstname.trim();
@@ -155,7 +155,7 @@ class UserController {
     async all(c: Context) {
         try {
             const users = await User.findAll({
-            attributes: { exclude: ['password'] }
+                attributes: { exclude: ['password'] }
             });
 
             return c.json({ users }, 200);
@@ -169,13 +169,13 @@ class UserController {
             const { username } = c.req.param();
 
             if (!username) {
-            return c.json({ error: "Nom d'utilisateur manquant." }, 400);
+                return c.json({ error: "Nom d'utilisateur manquant." }, 400);
             }
 
             const user = await User.findOne({ where: { username } });
 
             if (!user) {
-            return c.json({ error: "Utilisateur introuvable." }, 404);
+                return c.json({ error: "Utilisateur introuvable." }, 404);
             }
 
             await user.destroy();

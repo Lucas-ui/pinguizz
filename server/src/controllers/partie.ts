@@ -93,7 +93,7 @@ class PartieController {
           where: { id_question: questionId },
           include: [{
             model: Reponse,
-            as: 'reponse' // ✅ Correction ici
+            as: 'reponse'
           }],
         });
 

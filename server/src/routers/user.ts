@@ -17,6 +17,6 @@ router.put("/firstname", validate(firstnameSchema), authentification, userContro
 
 router.put("/username", validate(usernameSchema), authentification, userController.username)
 
-router.get("/all", authentification, role(["admin"]), userController.all)
+router.get("/all", authentification, role([1]), userController.all)
 
-router.delete("/delete/:username", authentification, role(["admin"]), userController.deleteByUsername);
+router.delete("/delete/:username", authentification, role([1]), userController.deleteByUsername);
