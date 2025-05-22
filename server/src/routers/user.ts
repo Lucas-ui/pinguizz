@@ -12,3 +12,5 @@ router.get("/", authentification, userController.get);
 router.put("/", authentification, validate(userSchema), userController.update);
 
 router.delete("/", authentification, userController.delete);
+
+router.post("/password", authentification, userController.password)
