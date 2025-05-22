@@ -1,5 +1,6 @@
 import { type Context } from "hono";
 import { Module } from "../models/module";
+import { User } from "../models/user";
 import { Question } from "../models/question";
 import { Posseder } from "../models/posseder";
 import { Reponse } from "../models/reponse";
@@ -193,6 +194,47 @@ class PartieController {
       }, 200);
     } catch (err) {
       console.error("[stats] Erreur :", err);
+      return c.json({ error: "Erreur serveur" }, 500);
+    }
+  }
+
+  async history(c: Context) {
+    try {
+      const username = c.get('userId');
+
+      if (!username) {
+        return c.json({ error: "Utilisateur non authentifié." }, 401);
+      }
+
+      const parties = await Partie.findAll({
+        where: { id_user: username },
+        include: [{ model: Contenir, as: 'contenirs' }]
+      });
+
+      return c.json(parties, 200);
+    } catch (err) {
+      return c.json({ error: "Erreur serveur" }, 500);
+    }
+  }
+
+  async all(c: Context) {
+    try {
+      const parties = await Partie.findAll({
+        include: [
+          {
+            model: User,
+            attributes: ["username", "name", "firstname"],
+          },
+          {
+            model: Contenir,
+            as: "contenirs",
+          },
+        ],
+      });
+
+      return c.json(parties, 200);
+    } catch (error) {
+      console.error("[admin/all] Erreur :", error);
       return c.json({ error: "Erreur serveur" }, 500);
     }
   }
