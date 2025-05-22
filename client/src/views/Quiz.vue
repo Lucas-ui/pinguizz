@@ -138,7 +138,7 @@ const sendQuiz = async () => {
 
 onMounted(() => {
   if (!questions || questions.length === 0) {
-    router.replace({ name: "home page" });
+    router.push("/");
   }
 });
 </script>
