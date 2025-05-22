@@ -5,7 +5,7 @@ import { Posseder } from "../models/posseder";
 import { Reponse } from "../models/reponse";
 import { Contenir } from "../models/contenir";
 import { Partie } from "../models/partie";
-import identifier from "../class/identifier"
+import identifier from "../class/identifier";
 
 class PartieController {
   async start(c: Context) {
@@ -23,7 +23,6 @@ class PartieController {
       console.log("[startPartie] Module trouvé :", module?.id ?? "null");
 
       if (!module) {
-        console.log("[startPartie] Module introuvable :", moduleName);
         return c.json({ error: "Module introuvable." }, 404);
       }
 
@@ -31,7 +30,7 @@ class PartieController {
         where: { id_module: module.id },
         include: [{
           model: Posseder,
-          as: 'posseder', // ✅ alias correct
+          as: 'posseder',
           include: [{
             model: Reponse,
             as: 'reponse',
@@ -70,101 +69,96 @@ class PartieController {
   }
 
   async result(c: Context) {
-  try {
-    const body = await c.req.json();
-    console.log("Valeur du body : ", body);
+    try {
+      const body = await c.req.json();
+      console.log("Valeur du body : ", body);
 
-    const userId = c.get("userId"); // récupéré depuis le middleware
+      const userId = c.get("userId");
 
-    if (!body || typeof body !== "object") {
-      return c.json({ error: "Requête invalide. Le corps de la requête est vide ou incorrect." }, 400);
-    }
+      if (!body || typeof body !== "object") {
+        return c.json({ error: "Requête invalide. Le corps de la requête est vide ou incorrect." }, 400);
+      }
 
-    let correctCount = 0;
-    const detailedResults = [];
+      let correctCount = 0;
+      const detailedResults = [];
 
-    for (const questionId in body) {
-      const selectedResponseIds = Array.isArray(body[questionId])
-        ? body[questionId]
-        : [body[questionId]];
+      for (const questionId in body) {
+        const selectedResponseIds = Array.isArray(body[questionId])
+          ? body[questionId]
+          : [body[questionId]];
 
-      // Récupérer la question
-      const question = await Question.findOne({ where: { id: questionId } });
-      if (!question) continue;
+        const question = await Question.findOne({ where: { id: questionId } });
+        if (!question) continue;
 
-      // Récupérer toutes les réponses possibles de cette question
-      const allPosseder = await Posseder.findAll({
-        where: { id_question: questionId },
-        include: [{ model: Reponse }],
+        const allPosseder = await Posseder.findAll({
+          where: { id_question: questionId },
+          include: [{
+            model: Reponse,
+            as: 'reponse' // ✅ Correction ici
+          }],
+        });
+
+        const responses = allPosseder.map(p => ({
+          responseId: p.id_reponse,
+          text: p.reponse?.intitule || "Réponse introuvable",
+          isCorrect: p.isCorrect === true,
+          isSelected: selectedResponseIds.includes(p.id_reponse),
+        }));
+
+        let isCorrect = true;
+        for (const id of selectedResponseIds) {
+          const p = allPosseder.find(p => p.id_reponse === id);
+          if (!p || !p.isCorrect) {
+            isCorrect = false;
+            break;
+          }
+        }
+
+        if (isCorrect) correctCount++;
+
+        detailedResults.push({
+          questionId,
+          questionText: question.text || "Question introuvable",
+          selectedResponseIds,
+          isCorrect,
+          responses,
+        });
+      }
+
+      const partieId = identifier.uuidV4();
+
+      await Partie.create({
+        id: partieId,
+        score: correctCount,
+        id_user: userId,
       });
 
-      const responses = allPosseder.map(p => ({
-        responseId: p.id_reponse,
-        text: p.reponse?.intitule || "Réponse introuvable",
-        isCorrect: p.isCorrect === true,
-        isSelected: selectedResponseIds.includes(p.id_reponse),
-      }));
-
-      // Vérifier si toutes les réponses sélectionnées sont correctes
-      let isCorrect = true;
-      for (const id of selectedResponseIds) {
-        const p = allPosseder.find(p => p.id_reponse === id);
-        if (!p || !p.isCorrect) {
-          isCorrect = false;
-          break;
+      for (const { questionId, selectedResponseIds } of detailedResults) {
+        for (const responseId of selectedResponseIds) {
+          await Contenir.create({
+            id_partie: partieId,
+            id_question: questionId,
+            id_reponse: responseId,
+          });
         }
       }
 
-      // Incrémenter le score uniquement si toutes les réponses sont justes
-      if (isCorrect) correctCount++;
+      return c.json({
+        score: correctCount,
+        total: detailedResults.length,
+        partieId,
+        details: detailedResults
+      }, 200);
 
-      detailedResults.push({
-        questionId,
-        questionText: question.text || "Question introuvable",
-        selectedResponseIds,
-        isCorrect,
-        responses,
-      });
+    } catch (err) {
+      console.error("Erreur dans result:", err);
+      return c.json({ error: "Erreur serveur" }, 500);
     }
-
-    const partieId = identifier.uuidV4();
-
-    await Partie.create({
-      id: partieId,
-      score: correctCount,
-      id_user: userId,
-    });
-
-    for (const { questionId, selectedResponseIds } of detailedResults) {
-      for (const responseId of selectedResponseIds) {
-        await Contenir.create({
-          id_partie: partieId,
-          id_question: questionId,
-          id_reponse: responseId,
-        });
-      }
-    }
-
-    return c.json({
-      score: correctCount,
-      total: detailedResults.length,
-      partieId,
-      details: detailedResults
-    }, 200);
-
-  } catch (err) {
-    console.error("Erreur dans result:", err);
-    return c.json({ error: "Erreur serveur" }, 500);
   }
-}
 
-
-
-
-  async stats(c: Context){
+  async stats(c: Context) {
     try {
-      // On récupère l’utilisateur connecté depuis le token
-      const user = c.get('user'); // dépend de ton middleware auth
+      const user = c.get('user');
 
       if (!user || !user.username) {
         return c.json({ error: "Utilisateur non authentifié." }, 401);
@@ -187,7 +181,7 @@ class PartieController {
       const totalParties = parties.length;
       const totalScore = parties.reduce((acc, p) => acc + p.score, 0);
       const bestScore = Math.max(...parties.map(p => p.score));
-      const totalQuestions = totalParties*15;
+      const totalQuestions = totalParties * 15;
       const precision = totalQuestions > 0 ? (totalScore / totalQuestions) * 100 : 0;
 
       return c.json({
