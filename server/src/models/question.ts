@@ -46,7 +46,6 @@ class Question extends Model<QuestionAttributes, QuestionCreationAttributes> imp
   }
 
   public static setupAssociations(models: any) {
-
     Question.belongsTo(models.Module, {
       foreignKey: 'id_module',
       targetKey: 'id',
@@ -76,7 +75,6 @@ class Question extends Model<QuestionAttributes, QuestionCreationAttributes> imp
       as: 'partiesContenantes',
     });
   }
-
 }
 
 export { Question };
