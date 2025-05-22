@@ -84,32 +84,47 @@ class PartieController {
     const detailedResults = [];
 
     for (const questionId in body) {
-      const responseValue = body[questionId];
-      const responseIds = Array.isArray(responseValue) ? responseValue : [responseValue];
+      const selectedResponseIds = Array.isArray(body[questionId])
+        ? body[questionId]
+        : [body[questionId]];
 
-      for (const responseId of responseIds) {
-        const posseder = await Posseder.findOne({
-          where: {
-            id_question: questionId,
-            id_reponse: responseId,
-          }
-        });
+      // Récupérer la question
+      const question = await Question.findOne({ where: { id: questionId } });
+      if (!question) continue;
 
-        const isCorrect = posseder?.isCorrect === true;
-        if (isCorrect) correctCount++;
+      // Récupérer toutes les réponses possibles de cette question
+      const allPosseder = await Posseder.findAll({
+        where: { id_question: questionId },
+        include: [{ model: Reponse }],
+      });
 
-        // 🔍 Récupérer texte de la question et de la réponse
-        const question = await Question.findOne({ where: { id: questionId } });
-        const reponse = await Reponse.findOne({ where: { id: responseId } });
+      const responses = allPosseder.map(p => ({
+        responseId: p.id_reponse,
+        text: p.reponse?.intitule || "Réponse introuvable",
+        isCorrect: p.isCorrect === true,
+        isSelected: selectedResponseIds.includes(p.id_reponse),
+      }));
 
-        detailedResults.push({
-          questionId,
-          questionText: question?.text || "Question introuvable",
-          selectedResponseId: responseId,
-          selectedResponseText: reponse?.intitule || "Réponse introuvable",
-          isCorrect,
-        });
+      // Vérifier si toutes les réponses sélectionnées sont correctes
+      let isCorrect = true;
+      for (const id of selectedResponseIds) {
+        const p = allPosseder.find(p => p.id_reponse === id);
+        if (!p || !p.isCorrect) {
+          isCorrect = false;
+          break;
+        }
       }
+
+      // Incrémenter le score uniquement si toutes les réponses sont justes
+      if (isCorrect) correctCount++;
+
+      detailedResults.push({
+        questionId,
+        questionText: question.text || "Question introuvable",
+        selectedResponseIds,
+        isCorrect,
+        responses,
+      });
     }
 
     const partieId = identifier.uuidV4();
@@ -120,12 +135,14 @@ class PartieController {
       id_user: userId,
     });
 
-    for (const { questionId, selectedResponseId } of detailedResults) {
-      await Contenir.create({
-        id_partie: partieId,
-        id_question: questionId,
-        id_reponse: selectedResponseId,
-      });
+    for (const { questionId, selectedResponseIds } of detailedResults) {
+      for (const responseId of selectedResponseIds) {
+        await Contenir.create({
+          id_partie: partieId,
+          id_question: questionId,
+          id_reponse: responseId,
+        });
+      }
     }
 
     return c.json({
