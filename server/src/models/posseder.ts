@@ -12,6 +12,7 @@ class Posseder extends Model<PossederAttributes> implements PossederAttributes {
   declare id_question: string;
   declare id_reponse: string;
   declare isCorrect: boolean;
+  reponse: any;
 
   public static async initialize(sequelize: Sequelize) {
     await Posseder.init(
