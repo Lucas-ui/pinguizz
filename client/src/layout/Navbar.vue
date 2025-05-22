@@ -44,6 +44,13 @@
     </div>
     <div class="navbar-end relative">
       <RouterLink
+        to="/registration"
+        class="text-black text-sm font-medium mr-4"
+        v-if="!isAuthenticated"
+      >
+        S'inscrire
+      </RouterLink>
+      <RouterLink
         to="/login"
         class="btn btn-primary rounded-full"
         v-if="!isAuthenticated"

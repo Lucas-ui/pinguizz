@@ -5,6 +5,5 @@ export const generateQuiz = (data) => {
 };
 
 export const submitQuiz = (data) => {
-  console.log("submitQuiz", data);
   return apiClient.post("/party", data);
 };

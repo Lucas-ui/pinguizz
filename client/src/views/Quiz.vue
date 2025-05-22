@@ -1,10 +1,7 @@
 <template>
-  <section class="max-w-4xl mx-auto p-6 mb-12">
-    <div class="mb-6">
+  <section class="max-w-4xl mx-auto pt-0 pl-6 pr-6 mb-4">
+    <div class="mb-2">
       <h1 class="text-3xl font-bold text-[#0e5b8b]">{{ moduleName }}</h1>
-      <h2 class="text-xl text-gray-700">
-        Question {{ currentIndex + 1 }} / {{ totalQuestions }}
-      </h2>
     </div>
     <div class="mb-6">
       <div class="flex justify-between mb-1 text-sm font-medium text-[#0e5b8b]">
@@ -23,11 +20,14 @@
         {{ currentQuestion.text }}
       </h3>
     </div>
-    <div v-if="currentQuestion" class="space-y-4 text-gray-800 mb-4">
+    <div
+      v-if="currentQuestion"
+      class="flex flex-col sm:grid sm:grid-cols-2 gap-4 mb-4 text-gray-800"
+    >
       <button
         v-for="response in currentQuestion.responses"
         :key="response.id"
-        class="w-full text-left p-4 rounded-lg cursor-pointer transition-colors duration-200"
+        class="w-full p-4 rounded-lg cursor-pointer transition-colors duration-200 flex items-center justify-start min-h-[56px]"
         @click="selectAnswer(response)"
         :class="{
           'bg-gray-600 text-white': selectedAnswer === response.id,
@@ -64,11 +64,15 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from "vue";
+import { ref, computed, watch, onMounted } from "vue";
+import { useRouter } from "vue-router";
 import { useQuizStore } from "../stores/quizStore";
+import { useQuizResultStore } from "../stores/resultQuizStore";
 import { submitQuiz } from "../api/party";
 
+const router = useRouter();
 const quizStore = useQuizStore();
+const quizResultStore = useQuizResultStore();
 const questions = quizStore.questions;
 const moduleName = quizStore.moduleName;
 
@@ -87,6 +91,10 @@ watch(
   currentIndex,
   () => {
     const q = currentQuestion.value;
+    if (!q) {
+      selectedAnswer.value = null;
+      return;
+    }
     const saved = userAnswers.value[q.id];
     selectedAnswer.value = saved ?? null;
   },
@@ -121,10 +129,16 @@ const sendQuiz = async () => {
   const answers = getUserAnswers();
   try {
     const response = await submitQuiz(answers);
-    console.log("Réponses envoyées :", answers);
-    console.log("Réponse API :", response);
+    quizResultStore.setResults(response.data.details);
+    router.push(`/result/${moduleName}`);
   } catch (error) {
-    console.error("Erreur lors de l'envoi :", error);
+    console.error(error);
   }
 };
+
+onMounted(() => {
+  if (!questions || questions.length === 0) {
+    router.replace({ name: "home page" });
+  }
+});
 </script>

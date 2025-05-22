@@ -8,7 +8,7 @@
         Choisis un module pour commencer à explorer les quiz.
       </p>
     </div>
-    <div class="flex flex-wrap gap-6 justify-center">
+    <div class="flex flex-wrap gap-6 justify-center mb-8">
       <div
         v-for="module in modules"
         :key="module.id"
@@ -27,6 +27,7 @@
             {{ module.description }}
           </p>
           <button
+            v-if="user"
             class="btn bg-[#f35e21] hover:bg-[#e55215] border-0 rounded-full"
             @click="startQuiz(module.name)"
           >
@@ -35,16 +36,28 @@
         </div>
       </div>
     </div>
+    <div class="text-center" v-if="!user">
+      <RouterLink to="/registration">
+        <button
+          class="btn bg-[#f35e21] hover:bg-[#e55215] border-0 rounded-full"
+        >
+          S'inscrire et démarrer un quiz
+        </button>
+      </RouterLink>
+    </div>
   </section>
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { computed, ref, onMounted } from "vue";
 import { allModulesByThemes } from "../api/module";
 import { useRoute, useRouter } from "vue-router";
 import { generateQuiz } from "../api/party";
 import { useQuizStore } from "../stores/quizStore";
+import { useAuthStore } from "../stores/authStore";
 
+const authStore = useAuthStore();
+const user = computed(() => authStore.user);
 const apiUrl = import.meta.env.VITE_API_URL || "http://localhost/api";
 const route = useRoute();
 const router = useRouter();

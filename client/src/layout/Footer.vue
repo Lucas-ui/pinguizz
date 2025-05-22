@@ -1,5 +1,5 @@
 <template>
-  <footer class="footer sm:footer-horizontal bg-transparent text-black p-10">
+  <footer class="footer sm:footer-horizontal bg-transparent text-black p-6">
     <aside class="flex items-center justify-between w-full">
       <div class="flex items-center">
         <Logo width="70px" height="auto" />
@@ -23,7 +23,7 @@
       </div>
     </aside>
   </footer>
-  <div class="border-t border-gray-200 text-center text-sm text-gray-500 py-10">
+  <div class="border-t border-gray-200 text-center text-sm text-gray-500 py-6">
     © 2025 Pinguiz. Tous droits réservés.
   </div>
 </template>
