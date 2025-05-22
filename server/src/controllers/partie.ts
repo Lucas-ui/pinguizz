@@ -72,9 +72,10 @@ class PartieController {
   async result(c: Context) {
     try {
       const body = await c.req.json();
-
+      console.log("Valeur du body : ", body)
       const { answers, username } = body;
-
+      console.log("Valeur de answers : ", answers)
+      console.log("Valeur de username : ", username)
       if (!username || !Array.isArray(answers)) {
         return c.json({ error: "Requête invalide. 'username' ou 'answers' manquant." }, 400);
       }
@@ -122,7 +123,6 @@ class PartieController {
       }, 200);
 
     } catch (err) {
-      console.error("[result] Erreur :", err);
       return c.json({ error: "Erreur serveur" }, 500);
     }
   }

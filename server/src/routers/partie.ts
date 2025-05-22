@@ -6,6 +6,6 @@ export const router = new Hono();
 
 router.get("/:module", partieController.start);
  
-router.post("/", partieController.result)
+router.post("/", authentification, partieController.result)
 
 router.get("/stats", authentification, partieController.stats);
