@@ -170,7 +170,7 @@ class PartieController {
         where: { id_user: username },
         include: [{
           model: Contenir,
-          as: 'contenirs',
+          as: 'contenus',  // correction ici
         }]
       });
 
@@ -208,7 +208,7 @@ class PartieController {
 
       const parties = await Partie.findAll({
         where: { id_user: username },
-        include: [{ model: Contenir, as: 'contenirs' }]
+        include: [{ model: Contenir, as: 'contenus' }]  // correction ici aussi
       });
 
       return c.json(parties, 200);
@@ -227,7 +227,7 @@ class PartieController {
           },
           {
             model: Contenir,
-            as: "contenirs",
+            as: "contenus",  // correction ici
           },
         ],
       });

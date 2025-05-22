@@ -167,7 +167,7 @@ class UserController {
     async deleteByUsername(c: Context) {
         try {
             const { username } = c.req.param();
-
+            console.log("Le username : ", username)
             if (!username) {
                 return c.json({ error: "Nom d'utilisateur manquant." }, 400);
             }
