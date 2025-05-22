@@ -13,16 +13,12 @@ class PartieController {
   async start(c: Context) {
     const moduleName = c.req.param("module");
 
-    console.log("[startPartie] Module demandé :", moduleName);
-
     if (!moduleName) {
-      console.log("[startPartie] Erreur : nom du module manquant.");
       return c.json({ error: "Nom du module manquant." }, 400);
     }
 
     try {
       const module = await Module.findOne({ where: { name: moduleName } });
-      console.log("[startPartie] Module trouvé :", module?.id ?? "null");
 
       if (!module) {
         return c.json({ error: "Module introuvable." }, 404);
@@ -41,16 +37,12 @@ class PartieController {
         }],
       });
 
-      console.log("[startPartie] Nombre de questions trouvées :", allQuestions.length);
-
       if (allQuestions.length === 0) {
         return c.json({ error: "Aucune question trouvée pour ce module." }, 404);
       }
 
       const shuffled = allQuestions.sort(() => Math.random() - 0.5);
       const selected = shuffled.slice(0, 15);
-
-      console.log("[startPartie] Nombre de questions sélectionnées :", selected.length);
 
       const formatted = selected.map((q: any) => ({
         id: q.id,
@@ -65,7 +57,6 @@ class PartieController {
 
       return c.json({ questions: formatted }, 200);
     } catch (err) {
-      console.error("[startPartie] Erreur lors du démarrage de la partie :", err);
       return c.json({ error: "Erreur serveur" }, 500);
     }
   }
@@ -152,7 +143,6 @@ class PartieController {
       }, 200);
 
     } catch (err) {
-      console.error("Erreur dans result:", err);
       return c.json({ error: "Erreur serveur" }, 500);
     }
   }
@@ -194,7 +184,6 @@ class PartieController {
         precision: `${precision.toFixed(1)}%`,
       }, 200);
     } catch (err) {
-      console.error("[stats] Erreur :", err);
       return c.json({ error: "Erreur serveur" }, 500);
     }
   }
@@ -225,7 +214,7 @@ class PartieController {
       include: [
         {
           model: User,
-          attributes: ["username", "name", "firstname"],
+          attributes: ["username", "name", "firstname", "image"],
         },
         {
           model: Contenir,
@@ -234,28 +223,23 @@ class PartieController {
       ],
     });
 
-    // 2. Récupérer modules et thèmes associés
-    // On suppose que tu as un modèle Module et un modèle Theme
-    // Sinon adapte les noms
     const modules = await Module.findAll({
       include: [
         {
-          model: Theme,  // Associe les thèmes aux modules
-          as: 'theme',   // ou autre alias selon ton modèle
-          attributes: ['id', 'name'], // ou intitule, etc.
+          model: Theme,
+          as: 'theme', 
+          attributes: ['id', 'name'],
         }
       ],
-      attributes: ['id', 'name'] // les champs utiles
+      attributes: ['id', 'name']
     });
 
-    // 3. Retourner les deux résultats
     return c.json({
       parties,
       modules,
     }, 200);
 
   } catch (error) {
-    console.error("[admin/all] Erreur :", error);
     return c.json({ error: "Erreur serveur" }, 500);
   }
 }
