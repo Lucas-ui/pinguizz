@@ -16,12 +16,15 @@
       </div>
       <div class="bg-green-100 p-6 rounded-lg shadow">
         <h3 class="text-xl font-semibold text-green-800">Quiz effectués</h3>
-        <p class="text-3xl font-bold text-green-900 mt-2">128</p>
+        <p class="text-3xl font-bold text-green-900 mt-2">
+          {{ quizzes.length }}
+        </p>
       </div>
     </div>
     <div class="mb-6">
       <div class="flex border-b">
         <button
+          class="cursor-pointer"
           @click="activeTab = 'users'"
           :class="[
             'px-4 py-2 font-medium',
@@ -33,6 +36,7 @@
           Utilisateurs
         </button>
         <button
+          class="cursor-pointer"
           @click="activeTab = 'quizzes'"
           :class="[
             'px-4 py-2 font-medium',
@@ -55,7 +59,7 @@
             <th class="px-4 py-2 text-left">Action</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody v-if="users.length">
           <tr
             v-for="user in users"
             :key="user.username"
@@ -74,6 +78,13 @@
             </td>
           </tr>
         </tbody>
+        <tbody v-else>
+          <tr>
+            <td colspan="4" class="text-center text-gray-500 py-4">
+              Aucun utilisateur trouvé.
+            </td>
+          </tr>
+        </tbody>
       </table>
     </div>
 
@@ -82,19 +93,26 @@
         <thead class="bg-gray-100 text-gray-700">
           <tr>
             <th class="px-4 py-2 text-left">Utilisateur</th>
-            <th class="px-4 py-2 text-left">Module du quiz</th>
+            <th class="px-4 py-2 text-left">Nom du quiz</th>
             <th class="px-4 py-2 text-left">Score</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody v-if="quizzes.length">
           <tr
             v-for="quiz in quizzes"
             :key="quiz.id"
             class="border-t hover:bg-gray-50"
           >
-            <td class="px-4 py-2">{{ quiz.utilisateur }}</td>
-            <td class="px-4 py-2">{{ quiz.titre }}</td>
-            <td class="px-4 py-2">{{ quiz.score }}</td>
+            <td class="px-4 py-2 text-black">{{ quiz.id_user }}</td>
+            <td class="px-4 py-2 text-black">{{ quiz.titre }}</td>
+            <td class="px-4 py-2 text-black">{{ quiz.score }} / 15</td>
+          </tr>
+        </tbody>
+        <tbody v-else>
+          <tr>
+            <td colspan="3" class="text-center text-gray-500 py-4">
+              Aucun quiz effectué.
+            </td>
           </tr>
         </tbody>
       </table>
@@ -123,8 +141,7 @@ const fetchUsers = async () => {
 const fetchQuizzes = async () => {
   try {
     const response = await allQuizzes();
-    quizzes.value = response.data.quizzes;
-    console.log(response.data.quizzes);
+    quizzes.value = response.data;
   } catch (error) {
     console.error(error);
   }
