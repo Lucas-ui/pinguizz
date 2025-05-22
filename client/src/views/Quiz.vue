@@ -1,12 +1,11 @@
 <template>
-  <section class="max-w-4xl mx-auto p-6 mb-12 mt-12">
+  <section class="max-w-4xl mx-auto p-6 mb-12">
     <div class="mb-6">
       <h1 class="text-3xl font-bold text-[#0e5b8b]">{{ moduleName }}</h1>
       <h2 class="text-xl text-gray-700">
         Question {{ currentIndex + 1 }} / {{ totalQuestions }}
       </h2>
     </div>
-
     <div class="mb-6">
       <div class="flex justify-between mb-1 text-sm font-medium text-[#0e5b8b]">
         <span>Question {{ currentIndex + 1 }} / {{ totalQuestions }}</span>
@@ -19,28 +18,25 @@
         ></div>
       </div>
     </div>
-
     <div v-if="currentQuestion" class="mb-8 p-6 bg-white shadow rounded-lg">
       <h3 class="text-lg font-semibold text-gray-800">
         {{ currentQuestion.text }}
       </h3>
     </div>
-
     <div v-if="currentQuestion" class="space-y-4 text-gray-800 mb-4">
       <button
-        v-for="(response, index) in currentQuestion.responses"
-        :key="index"
+        v-for="response in currentQuestion.responses"
+        :key="response.id"
         class="w-full text-left p-4 rounded-lg cursor-pointer transition-colors duration-200"
-        @click="selectAnswer(index)"
+        @click="selectAnswer(response)"
         :class="{
-          'bg-gray-600 text-white': selectedAnswer === index,
-          'bg-gray-100 hover:bg-gray-200': selectedAnswer !== index,
+          'bg-gray-600 text-white': selectedAnswer === response.id,
+          'bg-gray-100 hover:bg-gray-200': selectedAnswer !== response.id,
         }"
       >
         {{ response.intitule }}
       </button>
     </div>
-
     <div class="flex justify-between mt-6">
       <button
         class="px-4 py-2 bg-gray-300 text-gray-800 rounded-full hover:bg-gray-400 cursor-pointer"
@@ -97,12 +93,12 @@ watch(
   { immediate: true }
 );
 
-function selectAnswer(responseId) {
+function selectAnswer(response) {
   const q = currentQuestion.value;
   if (!q) return;
 
-  selectedAnswer.value = responseId;
-  userAnswers.value[q.id] = responseId;
+  selectedAnswer.value = response.id;
+  userAnswers.value[q.id] = response.id;
 }
 
 function nextQuestion() {
@@ -125,9 +121,10 @@ const sendQuiz = async () => {
   const answers = getUserAnswers();
   try {
     const response = await submitQuiz(answers);
-    console.log(response);
+    console.log("Réponses envoyées :", answers);
+    console.log("Réponse API :", response);
   } catch (error) {
-    console.error(error);
+    console.error("Erreur lors de l'envoi :", error);
   }
 };
 </script>
