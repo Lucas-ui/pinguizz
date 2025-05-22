@@ -23,3 +23,7 @@ export const editUsername = (data) => {
 export const allUsers = () => {
   return apiClient.get("users/all");
 };
+
+export const deleteUserAdmin = (data) => {
+  return apiClient.delete(`users/delete/${data}`);
+};

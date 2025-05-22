@@ -7,3 +7,7 @@ export const generateQuiz = (data) => {
 export const submitQuiz = (data) => {
   return apiClient.post("/party", data);
 };
+
+export const allQuizzes = () => {
+  return apiClient.get("/party/all");
+};
