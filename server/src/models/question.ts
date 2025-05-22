@@ -1,30 +1,33 @@
 // server/src/models/question.ts
-import { DataTypes, Model, Sequelize, type Optional } from 'sequelize';
+import { DataTypes, Model, Sequelize } from 'sequelize';
+import { Module } from './module';
 
 interface QuestionAttributes {
   id: string;
   text: string;
   id_module: string;
-  id_type: number;
+  id_type: string;
 }
 
-interface QuestionCreationAttributes extends Optional<QuestionAttributes, 'id'> {}
-
-class Question extends Model<QuestionAttributes, QuestionCreationAttributes> implements QuestionAttributes {
+class Question extends Model<QuestionAttributes> implements QuestionAttributes {
   declare id: string;
   declare text: string;
   declare id_module: string;
-  declare id_type: number;
+  declare id_type: string;
 
-  public static initialize(sequelize: Sequelize) {
-    Question.init(
+  // Association avec Module
+  declare Module?: Module;
+
+  public static async initialize(sequelize: Sequelize) {
+    await Question.init(
       {
         id: {
           type: DataTypes.STRING(36),
           primaryKey: true,
+          allowNull: false,
         },
         text: {
-          type: DataTypes.STRING(300),
+          type: DataTypes.STRING,
           allowNull: false,
         },
         id_module: {
@@ -32,7 +35,7 @@ class Question extends Model<QuestionAttributes, QuestionCreationAttributes> imp
           allowNull: false,
         },
         id_type: {
-          type: DataTypes.INTEGER,
+          type: DataTypes.STRING(36),
           allowNull: false,
         },
       },
@@ -48,32 +51,10 @@ class Question extends Model<QuestionAttributes, QuestionCreationAttributes> imp
   public static setupAssociations(models: any) {
     Question.belongsTo(models.Module, {
       foreignKey: 'id_module',
-      targetKey: 'id',
+      as: 'Module',
     });
 
-    Question.belongsTo(models.Type, {
-      foreignKey: 'id_type',
-      targetKey: 'id',
-    });
-
-    Question.hasMany(models.Posseder, {
-      foreignKey: 'id_question',
-      as: 'posseder',
-    });
-
-    Question.belongsToMany(models.Reponse, {
-      through: models.Posseder,
-      foreignKey: 'id_question',
-      otherKey: 'id_reponse',
-      as: 'reponsesPossedees',
-    });
-
-    Question.belongsToMany(models.Partie, {
-      through: models.Contenir,
-      foreignKey: 'id_question',
-      otherKey: 'id_partie',
-      as: 'partiesContenantes',
-    });
+    // Autres associations ici si besoin
   }
 }
 

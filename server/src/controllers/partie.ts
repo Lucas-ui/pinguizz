@@ -1,6 +1,7 @@
 import { type Context } from "hono";
 import { Module } from "../models/module";
 import { User } from "../models/user";
+import { Theme } from "../models/theme";
 import { Question } from "../models/question";
 import { Posseder } from "../models/posseder";
 import { Reponse } from "../models/reponse";
@@ -218,26 +219,66 @@ class PartieController {
   }
 
   async all(c: Context) {
-    try {
-      const parties = await Partie.findAll({
-        include: [
-          {
-            model: User,
-            attributes: ["username", "name", "firstname"],
-          },
-          {
-            model: Contenir,
-            as: "contenus",  // correction ici
-          },
-        ],
-      });
+  try {
+    const parties = await Partie.findAll({
+      include: [
+        {
+          model: User,
+          attributes: ["username", "name", "firstname"],
+        },
+        {
+          model: Contenir,
+          as: "contenus",
+          include: [
+            {
+              model: Question,
+              include: [
+                {
+                  model: Module,
+                  attributes: ["name"],
+                  include: [
+                    {
+                      model: Theme,
+                      attributes: ["name"],
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              model: Reponse,
+              attributes: ["intitule"],
+            },
+          ],
+        },
+      ],
+    });
 
-      return c.json(parties, 200);
-    } catch (error) {
-      console.error("[admin/all] Erreur :", error);
-      return c.json({ error: "Erreur serveur" }, 500);
-    }
+    // Transformation des données pour rendre le JSON plus lisible
+    const formatted = parties.map(partie => ({
+      id: partie.id,
+      score: partie.score,
+      user: partie.User ? {
+        username: partie.User.username,
+        name: partie.User.name,
+        firstname: partie.User.firstname,
+      } : null,
+      questions: partie.contenus?.map(contenu => ({
+        questionId: contenu.id_question,
+        reponseId: contenu.id_reponse,
+        module: contenu.Question?.Module?.name,
+        theme: contenu.Question?.Module?.Theme?.name,
+        reponse: contenu.Reponse?.intitule,
+      })) ?? [],
+    }));
+
+    return c.json(formatted, 200);
+  } catch (error) {
+    console.error("[admin/all] Erreur :", error);
+    return c.json({ error: "Erreur serveur" }, 500);
   }
+}
+
 }
 
 export const partieController = new PartieController();

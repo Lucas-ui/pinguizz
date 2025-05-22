@@ -1,6 +1,8 @@
 // server/src/models/contenir.ts
-import { DataTypes, Model, Sequelize } from 'sequelize';
-import { Question } from "./question"
+import { DataTypes, Model, Sequelize} from 'sequelize';
+import { Question } from './question';
+import { Reponse } from './reponse';
+import { Partie } from './partie';
 
 interface ContenirAttributes {
   id_partie: string;
@@ -12,6 +14,12 @@ class Contenir extends Model<ContenirAttributes> implements ContenirAttributes {
   declare id_partie: string;
   declare id_question: string;
   declare id_reponse: string;
+
+  // Déclarations pour les associations
+  declare Question?: Question;
+  declare Reponse?: Reponse;
+  declare Partie?: Partie;
+
 
   public static async initialize(sequelize: Sequelize) {
     await Contenir.init(
