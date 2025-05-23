@@ -17,7 +17,7 @@ class Partie extends Model<PartieAttributes, PartieCreationAttributes> implement
         await Partie.init(
             {
                 id: {
-                    type: DataTypes.UUID, // Aligné avec UUID pour cohérence
+                    type: DataTypes.UUID,
                     defaultValue: DataTypes.UUIDV4,
                     primaryKey: true,
                     allowNull: false,
@@ -27,7 +27,7 @@ class Partie extends Model<PartieAttributes, PartieCreationAttributes> implement
                     allowNull: false,
                 },
                 id_user: {
-                    type: DataTypes.UUID, // Changé de STRING(40) à UUID pour correspondre à USERS.id
+                    type: DataTypes.UUID,
                     allowNull: false,
                 },
             },
@@ -43,7 +43,7 @@ class Partie extends Model<PartieAttributes, PartieCreationAttributes> implement
     public static setupAssociations(models: any) {
         Partie.belongsTo(models.User, {
             foreignKey: 'id_user',
-            targetKey: 'id', // Changé de 'username' à 'id'
+            targetKey: 'id', 
         });
 
         Partie.hasMany(models.Contenir, {

@@ -195,14 +195,16 @@
           </div>
           <div v-else>
             <div
-              v-for="(quiz, index) in historyData"
+              v-for="(quiz, index) in [...historyData].reverse()"
               :key="quiz.id"
               class="rounded-lg p-4"
             >
-              <p class="font-semibold">Quiz #{{ index + 1 }}</p>
+              <p class="font-semibold">
+                Quiz #{{ historyData.length - index }}
+              </p>
               <p>
                 Score :
-                <span class="font-bold text-blue-600">{{ quiz.score }}</span>
+                <span class="font-bold text-blue-600">{{ quiz.score }}/{{ quiz.contenus.length }}</span>
               </p>
             </div>
           </div>
