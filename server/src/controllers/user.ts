@@ -138,7 +138,7 @@ class UserController {
                 return c.json({ error: "Nom d'utilisateur déjà utilisé." }, 409);
             }
 
-            const user = await User.findOne({ where: { username: userId } });
+            const user = await User.findOne({ where: { id: userId } });
             if (!user) {
                 return c.json({ error: "Utilisateur introuvable." }, 404);
             }

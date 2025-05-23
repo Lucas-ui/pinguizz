@@ -3,13 +3,13 @@ import { sign, verify } from "jsonwebtoken";
 import { logger } from "../class/logger";
 import { User } from "../models/user";
 import { hasher } from "../class/hasher";
+import Identifier from "../class/identifier";
 import { directory } from "../class/directory";
 import { Op, ValidationError } from "sequelize";
 
 class AuthController {
     async register(c: Context) {
     const data = c.get("validatedBody");
-    console.log("Données reçues :", data);
 
     try {
         const hashedPassword = await hasher.hash(data.password);
@@ -17,11 +17,12 @@ class AuthController {
         const avatar = await directory.getAvatar()
 
         const newUser = await User.create({
+            id: Identifier.uuidV4(),
             username: data.username,
             name: data.name,
             firstname: data.firstname,
             password: hashedPassword,
-            isAdmin: data.isAdmin,
+            isAdmin: false,
             image: avatar,
         });
 
@@ -49,7 +50,6 @@ class AuthController {
 
     async signin(c: Context) {
         const data = c.get("validatedBody");
-        console.log(data)
         try {
             const user = await User.findOne({
                 where: { username: data.username },
@@ -81,21 +81,21 @@ class AuthController {
                 );
             }
 
-            const token = sign({ userId: user.username, isAdmin: user.isAdmin }, process.env.JWT_SECRET!, {
+            const token = sign({ userId: user.id, isAdmin: user.isAdmin }, process.env.JWT_SECRET!, {
                 expiresIn: "1h",
             });
 
-            logger.loggerApi.info("Connexion réussie: " + user.username);
+            logger.loggerApi.info("Connexion réussie: " + user.id);
 
             const dataUser = {
-                username: user.username,
+                username: user.id,
                 token: token,
             };
 
             return c.json({ user: dataUser }, 200); 
         } catch (error) {
             logger.loggerAuth.error(
-                "Erreur lors de la connexion: " + data.username + " | " + error
+                "Erreur lors de la connexion: " + data.id + " | " + error
             );
             return c.json({ error: "Erreur lors de la connexion" }, 500);
         }

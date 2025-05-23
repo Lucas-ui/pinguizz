@@ -63,7 +63,6 @@ export const registerSchema = z
       .string()
       .min(12, 'La confirmation du mot de passe doit contenir au moins 12 caractères.')
       .max(60, 'La confirmation du mot de passe ne doit pas dépasser 60 caractères.'),
-    isAdmin: z.boolean().optional().default(false)
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: 'Les mots de passe ne correspondent pas.',

@@ -2,6 +2,7 @@
 import { DataTypes, Model, type Optional, Sequelize } from 'sequelize';
 
 interface UserAttributes {
+    id: string;
     username: string;
     name: string;
     firstname: string;
@@ -13,6 +14,7 @@ interface UserAttributes {
 interface UserCreationAttributes extends Optional<UserAttributes, 'isAdmin'> {}
 
 class User extends Model<UserAttributes, UserCreationAttributes> implements UserAttributes {
+    declare id: string;
     declare username: string;
     declare name: string;
     declare firstname: string;
@@ -23,13 +25,25 @@ class User extends Model<UserAttributes, UserCreationAttributes> implements User
     public static async initialize(sequelize: Sequelize) {
         await User.init(
             {
-                username: {
-                    type: DataTypes.STRING(40),
+                id: {
+                    type: DataTypes.UUID,
                     allowNull: false,
                     primaryKey: true,
                     unique: true,
                     validate: {
                         notEmpty: { msg: "L'identifiant ne doit pas être vide." },
+                        len: {
+                            args: [3, 40],
+                            msg: "L'identifiant doit contenir entre 3 et 40 caractères.",
+                        },
+                    },
+                },
+                username: {
+                    type: DataTypes.STRING(40),
+                    allowNull: false,
+                    unique: true,
+                    validate: {
+                        notEmpty: { msg: "L'username ne doit pas être vide." },
                         len: {
                             args: [3, 40],
                             msg: "L'identifiant doit contenir entre 3 et 40 caractères.",
