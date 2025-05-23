@@ -2,7 +2,7 @@ import { type Context } from "hono";
 import { Module } from "../models/module";
 import { User } from "../models/user";
 import { Question } from "../models/question";
-import {Theme} from "../models/theme"
+import { Theme } from "../models/theme";
 import { Posseder } from "../models/posseder";
 import { Reponse } from "../models/reponse";
 import { Contenir } from "../models/contenir";
@@ -62,128 +62,124 @@ class PartieController {
   }
 
   async result(c: Context) {
-  try {
-    const body = await c.req.json();
-    console.log("✅ Requête reçue avec le body :", JSON.stringify(body, null, 2));
+    try {
+      const body = await c.req.json();
+      console.log("✅ Requête reçue avec le body :", JSON.stringify(body, null, 2));
 
-    const userId = c.get("userId");
-    console.log("👤 ID utilisateur récupéré :", userId);
+      const userId = c.get("userId");
+      console.log("👤 ID utilisateur récupéré :", userId);
 
-    if (!body || typeof body !== "object") {
-      console.warn("⚠️ Requête invalide. Le corps est vide ou incorrect.");
-      return c.json({ error: "Requête invalide. Le corps de la requête est vide ou incorrect." }, 400);
-    }
-
-    let correctCount = 0;
-    const detailedResults = [];
-
-    for (const questionId in body) {
-      const selectedResponseIds = Array.isArray(body[questionId])
-        ? body[questionId]
-        : [body[questionId]];
-
-      console.log(`🔍 Traitement de la question ${questionId} avec réponses sélectionnées :`, selectedResponseIds);
-
-      const question = await Question.findOne({ where: { id: questionId } });
-      if (!question) {
-        console.warn(`❌ Question introuvable pour l'ID : ${questionId}`);
-        continue;
+      if (!body || typeof body !== "object") {
+        console.warn("⚠️ Requête invalide. Le corps est vide ou incorrect.");
+        return c.json({ error: "Requête invalide. Le corps de la requête est vide ou incorrect." }, 400);
       }
 
-      const allPosseder = await Posseder.findAll({
-        where: { id_question: questionId },
-        include: [{
-          model: Reponse,
-          as: 'reponse'
-        }],
+      let correctCount = 0;
+      const detailedResults = [];
+
+      for (const questionId in body) {
+        const selectedResponseIds = Array.isArray(body[questionId])
+          ? body[questionId]
+          : [body[questionId]];
+
+        console.log(`🔍 Traitement de la question ${questionId} avec réponses sélectionnées :`, selectedResponseIds);
+
+        const question = await Question.findOne({ where: { id: questionId } });
+        if (!question) {
+          console.warn(`❌ Question introuvable pour l'ID : ${questionId}`);
+          continue;
+        }
+
+        const allPosseder = await Posseder.findAll({
+          where: { id_question: questionId },
+          include: [{
+            model: Reponse,
+            as: 'reponse',
+          }],
+        });
+
+        const responses = allPosseder.map(p => ({
+          responseId: p.id_reponse,
+          text: p.reponse?.intitule || "Réponse introuvable",
+          isCorrect: p.isCorrect === true,
+          isSelected: selectedResponseIds.includes(p.id_reponse),
+        }));
+
+        console.log(`📋 Réponses attendues pour la question ${questionId} :`, responses);
+
+        let isCorrect = true;
+        for (const id of selectedResponseIds) {
+          const p = allPosseder.find(p => p.id_reponse === id);
+          if (!p || !p.isCorrect) {
+            isCorrect = false;
+            break;
+          }
+        }
+
+        if (isCorrect) {
+          console.log(`✅ Bonne réponse pour la question ${questionId}`);
+          correctCount++;
+        } else {
+          console.log(`❌ Mauvaise réponse pour la question ${questionId}`);
+        }
+
+        detailedResults.push({
+          questionId,
+          questionText: question.text || "Question introuvable",
+          selectedResponseIds,
+          isCorrect,
+          responses,
+        });
+      }
+
+      const partieId = identifier.uuidV4();
+      console.log(`🆕 Création de la partie avec ID : ${partieId} et score : ${correctCount}`);
+
+      await Partie.create({
+        id: partieId,
+        score: correctCount,
+        id_user: userId,
       });
 
-      const responses = allPosseder.map(p => ({
-        responseId: p.id_reponse,
-        text: p.reponse?.intitule || "Réponse introuvable",
-        isCorrect: p.isCorrect === true,
-        isSelected: selectedResponseIds.includes(p.id_reponse),
-      }));
-
-      console.log(`📋 Réponses attendues pour la question ${questionId} :`, responses);
-
-      let isCorrect = true;
-      for (const id of selectedResponseIds) {
-        const p = allPosseder.find(p => p.id_reponse === id);
-        if (!p || !p.isCorrect) {
-          isCorrect = false;
-          break;
+      for (const { questionId, selectedResponseIds } of detailedResults) {
+        for (const responseId of selectedResponseIds) {
+          console.log(`📌 Enregistrement réponse : question ${questionId}, réponse ${responseId}`);
+          await Contenir.create({
+            id_partie: partieId,
+            id_question: questionId,
+            id_reponse: responseId,
+          });
         }
       }
 
-      if (isCorrect) {
-        console.log(`✅ Bonne réponse pour la question ${questionId}`);
-        correctCount++;
-      } else {
-        console.log(`❌ Mauvaise réponse pour la question ${questionId}`);
-      }
+      console.log("✅ Partie enregistrée avec succès.");
 
-      detailedResults.push({
-        questionId,
-        questionText: question.text || "Question introuvable",
-        selectedResponseIds,
-        isCorrect,
-        responses,
-      });
+      return c.json({
+        score: correctCount,
+        total: detailedResults.length,
+        partieId,
+        details: detailedResults,
+      }, 200);
+    } catch (err) {
+      console.error("💥 Erreur serveur :", err);
+      return c.json({ error: "Erreur serveur" }, 500);
     }
-
-    const partieId = identifier.uuidV4();
-    console.log(`🆕 Création de la partie avec ID : ${partieId} et score : ${correctCount}`);
-
-    await Partie.create({
-      id: partieId,
-      score: correctCount,
-      id_user: userId,
-    });
-
-    for (const { questionId, selectedResponseIds } of detailedResults) {
-      for (const responseId of selectedResponseIds) {
-        console.log(`📌 Enregistrement réponse : question ${questionId}, réponse ${responseId}`);
-        await Contenir.create({
-          id_partie: partieId,
-          id_question: questionId,
-          id_reponse: responseId,
-        });
-      }
-    }
-
-    console.log("✅ Partie enregistrée avec succès.");
-
-    return c.json({
-      score: correctCount,
-      total: detailedResults.length,
-      partieId,
-      details: detailedResults
-    }, 200);
-
-  } catch (err) {
-    console.error("💥 Erreur serveur :", err);
-    return c.json({ error: "Erreur serveur" }, 500);
   }
-}
-
 
   async stats(c: Context) {
     try {
-      const user = c.get('user');
+      const userId = c.get('userId'); // Changé de user.username à userId
 
-      if (!user || !user.username) {
+      if (!userId) {
         return c.json({ error: "Utilisateur non authentifié." }, 401);
       }
 
-      const username = user.username;
-
       const parties = await Partie.findAll({
-        where: { id_user: username },
+        where: { id_user: userId }, // Changé de username à userId
         include: [{
           model: Contenir,
-          as: 'contenus',  // correction ici
-        }]
+          as: 'contenus',
+        }],
       });
 
       if (parties.length === 0) {
@@ -196,8 +192,11 @@ class PartieController {
       const totalQuestions = totalParties * 15;
       const precision = totalQuestions > 0 ? (totalScore / totalQuestions) * 100 : 0;
 
+      // Récupérer le username pour l'affichage
+      const user = await User.findOne({ where: { id: userId } });
+
       return c.json({
-        username,
+        username: user?.username || 'Inconnu',
         totalParties,
         totalScore,
         bestScore,
@@ -211,15 +210,15 @@ class PartieController {
 
   async history(c: Context) {
     try {
-      const username = c.get('userId');
+      const userId = c.get('userId');
 
-      if (!username) {
+      if (!userId) {
         return c.json({ error: "Utilisateur non authentifié." }, 401);
       }
 
       const parties = await Partie.findAll({
-        where: { id_user: username },
-        include: [{ model: Contenir, as: 'contenus' }]  // correction ici aussi
+        where: { id_user: userId },
+        include: [{ model: Contenir, as: 'contenus' }],
       });
 
       return c.json(parties, 200);
@@ -229,42 +228,39 @@ class PartieController {
   }
 
   async all(c: Context) {
-  try {
-    // 1. Récupérer les parties + user + contenus
-    const parties = await Partie.findAll({
-      include: [
-        {
-          model: User,
-          attributes: ["username", "name", "firstname", "image"],
-        },
-        {
-          model: Contenir,
-          as: "contenus",
-        },
-      ],
-    });
+    try {
+      const parties = await Partie.findAll({
+        include: [
+          {
+            model: User,
+            attributes: ["username", "name", "firstname", "image"],
+          },
+          {
+            model: Contenir,
+            as: "contenus",
+          },
+        ],
+      });
 
-    const modules = await Module.findAll({
-      include: [
-        {
-          model: Theme,
-          as: 'theme', 
-          attributes: ['id', 'name'],
-        }
-      ],
-      attributes: ['id', 'name']
-    });
+      const modules = await Module.findAll({
+        include: [
+          {
+            model: Theme,
+            as: 'theme',
+            attributes: ['id', 'name'],
+          },
+        ],
+        attributes: ['id', 'name'],
+      });
 
-    return c.json({
-      parties,
-      modules,
-    }, 200);
-
-  } catch (error) {
-    return c.json({ error: "Erreur serveur" }, 500);
+      return c.json({
+        parties,
+        modules,
+      }, 200);
+    } catch (err) {
+      return c.json({ error: "Erreur serveur" }, 500);
+    }
   }
-}
-
 }
 
 export const partieController = new PartieController();

@@ -1,4 +1,3 @@
-// server/src/models/Partie.ts
 import { DataTypes, Model, type Optional, Sequelize } from 'sequelize';
 
 interface PartieAttributes {
@@ -18,7 +17,8 @@ class Partie extends Model<PartieAttributes, PartieCreationAttributes> implement
         await Partie.init(
             {
                 id: {
-                    type: DataTypes.STRING(36),
+                    type: DataTypes.UUID, // Aligné avec UUID pour cohérence
+                    defaultValue: DataTypes.UUIDV4,
                     primaryKey: true,
                     allowNull: false,
                 },
@@ -27,7 +27,7 @@ class Partie extends Model<PartieAttributes, PartieCreationAttributes> implement
                     allowNull: false,
                 },
                 id_user: {
-                    type: DataTypes.STRING(40),
+                    type: DataTypes.UUID, // Changé de STRING(40) à UUID pour correspondre à USERS.id
                     allowNull: false,
                 },
             },
@@ -41,10 +41,9 @@ class Partie extends Model<PartieAttributes, PartieCreationAttributes> implement
     }
 
     public static setupAssociations(models: any) {
-
         Partie.belongsTo(models.User, {
             foreignKey: 'id_user',
-            targetKey: 'username',
+            targetKey: 'id', // Changé de 'username' à 'id'
         });
 
         Partie.hasMany(models.Contenir, {
@@ -59,7 +58,6 @@ class Partie extends Model<PartieAttributes, PartieCreationAttributes> implement
             as: 'questionsContenues',
         });
     }
-
 }
 
 export { Partie };
