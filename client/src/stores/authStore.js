@@ -24,12 +24,12 @@ export const useAuthStore = defineStore("auth", () => {
   }
 
   function logout() {
-    localStorage.clear();
+    sessionStorage.clear();
     user.value = null;
   }
 
   async function checkAuth() {
-    const token = localStorage.getItem("authToken");
+    const token = sessionStorage.getItem("authToken");
     if (token) {
       try {
         const response = await infosUser();
@@ -38,7 +38,7 @@ export const useAuthStore = defineStore("auth", () => {
       } catch (error) {
         setAuthenticated(false);
         setUser(null);
-        localStorage.removeItem("authToken");
+        sessionStorage.removeItem("authToken");
       }
     } else {
       setAuthenticated(false);

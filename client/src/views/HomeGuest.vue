@@ -96,11 +96,11 @@
           <h3
             class="mb-3 text-xl font-semibold bg-gradient-to-r from-green-600 to-green-800 bg-clip-text text-transparent"
           >
-            Sujets variés
+            Thèmes variés
           </h3>
           <p class="text-gray-600">
-            De l'informatique à la culture générale, nous couvrons un large
-            éventail de sujets passionnants.
+            Explorez une grande diversité de sujets liés à l'informatique,
+            allant des bases aux domaines les plus passionnants.
           </p>
         </div>
         <div
@@ -146,8 +146,8 @@
         </p>
         <p class="mx-auto max-w-2xl text-gray-600">
           Chaque thème contient des modules plus précis pour mettre à l'épreuve
-          vos connaissances dans différents domaines. Explorez nos catégories et
-          trouvez le sujet qui vous passionne !
+          vos connaissances dans le domaine de l'informatique. Explorez nos
+          catégories et trouvez le sujet qui vous passionne !
         </p>
       </div>
       <div class="flex flex-wrap items-center justify-center gap-4 md:gap-8">

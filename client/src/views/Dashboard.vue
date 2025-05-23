@@ -53,6 +53,7 @@
       <table class="w-full table-auto border text-sm">
         <thead class="bg-gray-100 text-gray-700">
           <tr>
+            <th class="px-4 py-2 text-left">Image</th>
             <th class="px-4 py-2 text-left">Nom</th>
             <th class="px-4 py-2 text-left">Prénom</th>
             <th class="px-4 py-2 text-left">Identifiant</th>
@@ -65,6 +66,13 @@
             :key="user.username"
             class="border-t hover:bg-gray-50"
           >
+            <td class="px-4 py-2">
+              <img
+                class="w-12 h-12 rounded-full object-cover shadow-md"
+                :src="`${apiUrl}/images/avatar/${user.image}`"
+                alt="Image de profil"
+              />
+            </td>
             <td class="px-4 py-2 text-black">{{ user.name }}</td>
             <td class="px-4 py-2 text-black">{{ user.firstname }}</td>
             <td class="px-4 py-2 text-black">{{ user.username }}</td>
@@ -93,7 +101,6 @@
         <thead class="bg-gray-100 text-gray-700">
           <tr>
             <th class="px-4 py-2 text-left">Utilisateur</th>
-            <th class="px-4 py-2 text-left">Nom du quiz</th>
             <th class="px-4 py-2 text-left">Score</th>
           </tr>
         </thead>
@@ -104,7 +111,6 @@
             class="border-t hover:bg-gray-50"
           >
             <td class="px-4 py-2 text-black">{{ quiz.id_user }}</td>
-            <td class="px-4 py-2 text-black">{{ quiz.titre }}</td>
             <td class="px-4 py-2 text-black">{{ quiz.score }} / 15</td>
           </tr>
         </tbody>
@@ -124,6 +130,7 @@
 import { ref, computed } from "vue";
 import { allUsers, deleteUserAdmin } from "../api/user";
 import { allQuizzes } from "../api/party";
+const apiUrl = import.meta.env.VITE_API_URL || "http://localhost/api";
 
 const activeTab = ref("users");
 const users = ref([]);
@@ -141,7 +148,7 @@ const fetchUsers = async () => {
 const fetchQuizzes = async () => {
   try {
     const response = await allQuizzes();
-    quizzes.value = response.data;
+    quizzes.value = response.data.parties;
   } catch (error) {
     console.error(error);
   }

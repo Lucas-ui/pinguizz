@@ -127,13 +127,12 @@ const registration = async () => {
     firstname: firstName.value,
     password: password.value,
     confirmPassword: confirmPassword.value,
-    isAdmin: false,
   };
   try {
     await registerUser(data);
     router.push("/login");
   } catch (error) {
-    errorMessage.value = error.response.data.error;
+    errorMessage.value = "Erreur lors de l'inscription. Veuillez réessayer.";
   }
 };
 </script>

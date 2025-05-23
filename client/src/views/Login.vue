@@ -86,13 +86,13 @@ const login = async () => {
 
     const response = await loginUser(data);
     const token = response?.data?.user?.token;
-    localStorage.setItem("authToken", token);
+    sessionStorage.setItem("authToken", token);
     const userResponse = await infosUser();
     authStore.setAuthenticated(true);
     authStore.setUser(userResponse.data);
     router.push("/");
   } catch (error) {
-    errorMessage.value = error.response.data.error;
+    errorMessage.value = "Erreur de connexion. Vérifiez vos identifiants.";
     console.error(error);
   }
 };

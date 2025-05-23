@@ -11,3 +11,7 @@ export const submitQuiz = (data) => {
 export const allQuizzes = () => {
   return apiClient.get("/party/all");
 };
+
+export const getQuizHistory = () => {
+  return apiClient.get("/party/history");
+};

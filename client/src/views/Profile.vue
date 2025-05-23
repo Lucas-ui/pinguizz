@@ -66,6 +66,26 @@
         </div>
 
         <div v-if="currentTab === 'infos'" class="space-y-4">
+          <div
+            class="text-white rounded-md p-4 mt-5 mb-5 bg-gradient-to-r from-[#f01f1f66] to-[#f01f1f66] border border-[#f01f1f66]"
+            v-if="errorMessage"
+          >
+            <div>
+              <div class="text-sm text-[#1f2328]">
+                {{ errorMessage }}
+              </div>
+            </div>
+          </div>
+          <div
+            class="text-white rounded-md p-4 mt-5 mb-5 bg-gradient-to-r from-[#4bb54366] to-[#4bb54366] border border-[#4bb54366]'"
+            v-if="successMessage"
+          >
+            <div>
+              <div class="text-sm text-[#1f2328]">
+                {{ successMessage }}
+              </div>
+            </div>
+          </div>
           <div>
             <label class="block text-sm font-medium text-gray-700">Nom</label>
             <div class="mt-1 flex gap-2">
@@ -169,8 +189,23 @@
           </button>
         </div>
 
-        <div v-else-if="currentTab === 'history'" class="text-gray-500">
-          Historique des quiz à venir...
+        <div v-else-if="currentTab === 'history'" class="text-black space-y-4">
+          <div v-if="historyData.length === 0">
+            Vous n'avez pas encore effectué de quiz.
+          </div>
+          <div v-else>
+            <div
+              v-for="(quiz, index) in historyData"
+              :key="quiz.id"
+              class="rounded-lg p-4"
+            >
+              <p class="font-semibold">Quiz #{{ index + 1 }}</p>
+              <p>
+                Score :
+                <span class="font-bold text-blue-600">{{ quiz.score }}</span>
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -210,6 +245,7 @@ import { useRouter } from "vue-router";
 import { ref, computed, watch } from "vue";
 import { useAuthStore } from "../stores/authStore";
 import { deleteUser } from "../api/user";
+import { getQuizHistory } from "../api/party";
 import {
   editPassword,
   editName,
@@ -228,6 +264,7 @@ const username = ref("");
 const showDeleteModal = ref(false);
 const newPassword = ref("");
 const confirmPassword = ref("");
+const historyData = ref([]);
 const errorMessage = ref("");
 const successMessage = ref("");
 
@@ -257,7 +294,9 @@ const updateNom = async () => {
   try {
     await editName(data);
     authStore.updateUser({ name: nom.value });
+    successMessage.value = "Nom modifié avec succès.";
   } catch (error) {
+    errorMessage.value = "Erreur lors de la modification du nom.";
     console.error(error);
   }
 };
@@ -269,7 +308,9 @@ const updatePrenom = async () => {
   try {
     await editFirstname(data);
     authStore.updateUser({ firstname: prenom.value });
+    successMessage.value = "Prénom modifié avec succès.";
   } catch (error) {
+    errorMessage.value = "Erreur lors de la modification du prénom.";
     console.error(error);
   }
 };
@@ -281,7 +322,9 @@ const updateUsername = async () => {
   try {
     await editUsername(data);
     authStore.updateUser({ username: username.value });
+    successMessage.value = "Identifiant modifié avec succès.";
   } catch (error) {
+    errorMessage.value = "Erreur lors de la modification de l'identifiant.";
     console.error(error);
   }
 };
@@ -296,6 +339,17 @@ const deleteAccount = async () => {
     console.error(error);
   }
 };
+
+const getHistory = async () => {
+  try {
+    const response = await getQuizHistory();
+    historyData.value = response.data;
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+getHistory();
 
 watch(
   user,

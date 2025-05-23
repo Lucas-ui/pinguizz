@@ -16,7 +16,6 @@
         <RouterLink to="/rules">
           <p class="hover:underline">Règlement</p>
         </RouterLink>
-        <p>Contact</p>
         <a href="https://github.com/Lucas-ui/pinguizz" target="_blank">
           <i class="ri-github-fill text-3xl text-black"></i>
         </a>

@@ -7,8 +7,8 @@ const apiClient = axios.create({
 });
 
 apiClient.interceptors.request.use((config) => {
-  const token = localStorage.getItem("authToken");
-  const isAdmin = localStorage.getItem("isAdmin");
+  const token = sessionStorage.getItem("authToken");
+  const isAdmin = sessionStorage.getItem("isAdmin");
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
     config.headers.role = isAdmin;
