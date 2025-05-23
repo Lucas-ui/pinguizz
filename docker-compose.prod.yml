@@ -91,4 +91,4 @@ networks:
     driver: bridge
 
 volumes:
-  db-data-pinguiz: {}
+    master-data:
