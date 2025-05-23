@@ -8,20 +8,10 @@ class UserController {
         return c.json(users);
     }
 
-    async update(c: Context) {
-        const userId = c.get("userId");
-        const userData = c.get("validatedBody");
-        await User.update(
-            { username: userData.username },
-            { where: { username: userId } }
-        );
-        return c.json({}, 200);
-    }
-
     async delete(c: Context) {
         const userId = c.get("userId");
         await User.destroy({
-            where: { username: userId },
+            where: { id: userId },
         });
         return c.json({}, 200);
     }
@@ -51,7 +41,7 @@ class UserController {
 
             const hashedPassword = await hasher.hash(newPassword, "bcrypt");
 
-            const user = await User.findOne({ where: { username: userId } });
+            const user = await User.findOne({ where: { id: userId } });
             if (!user) {
                 return c.json({ error: "Utilisateur introuvable." }, 404);
             }
@@ -79,7 +69,7 @@ class UserController {
                 return c.json({ error: "Nom invalide." }, 400);
             }
 
-            const user = await User.findOne({ where: { username: userId } });
+            const user = await User.findOne({ where: { id: userId } });
             if (!user) {
                 return c.json({ error: "Utilisateur introuvable." }, 404);
             }
@@ -106,7 +96,7 @@ class UserController {
                 return c.json({ error: "Prénom invalide." }, 400);
             }
 
-            const user = await User.findOne({ where: { username: userId } });
+            const user = await User.findOne({ where: { id: userId } });
             if (!user) {
                 return c.json({ error: "Utilisateur introuvable." }, 404);
             }
