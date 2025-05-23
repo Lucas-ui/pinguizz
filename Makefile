@@ -42,4 +42,8 @@ resetprod:
 
 prune:
 	docker system prune -a --volumes
+<<<<<<< HEAD
     docker volume rm $(docker volume ls -q)
+=======
+	docker volume rm $(docker volume ls -q)
+>>>>>>> 0dc6c11e57abea89d85c72444f623a8e1a14b61e

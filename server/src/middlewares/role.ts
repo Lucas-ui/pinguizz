@@ -1,6 +1,6 @@
 import { type Context, type Next } from "hono";
 
-export const role = (allowedRoles: string[]) => {
+export const role = (allowedRoles: number[]) => {
     return async (c: Context, next: Next) => {
         const userRole = c.get("userRole");
 

@@ -14,6 +14,15 @@ export const useAuthStore = defineStore("auth", () => {
     user.value = userData;
   }
 
+  function updateUser(updatedFields) {
+    if (!user.value) return;
+
+    user.value = {
+      ...user.value,
+      ...updatedFields,
+    };
+  }
+
   function logout() {
     localStorage.clear();
     user.value = null;
@@ -42,6 +51,7 @@ export const useAuthStore = defineStore("auth", () => {
     user,
     setAuthenticated,
     setUser,
+    updateUser,
     logout,
     checkAuth,
   };

@@ -43,6 +43,12 @@ const router = createRouter({
       component: () => import("../views/Themes.vue"),
     },
     {
+      path: "/dashboard",
+      name: "dashboard page",
+      component: () => import("../views/Dashboard.vue"),
+      meta: { requiresAuth: true, requiresAdmin: true },
+    },
+    {
       path: "/terms",
       name: "terms page",
       component: () => import("../views/Terms.vue"),
@@ -60,7 +66,7 @@ const router = createRouter({
     },
     {
       path: "/:pathMatch(.*)*",
-      name: "NotFound",
+      name: "not found page",
       component: () => import("../views/NotFound.vue"),
     },
   ],
@@ -69,13 +75,22 @@ const router = createRouter({
 router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore();
   const requiresAuth = to.matched.some((record) => record.meta.requiresAuth);
+  const requiresAdmin = to.matched.some((record) => record.meta.requiresAdmin);
+
   await authStore.checkAuth();
 
-  if (requiresAuth && !authStore.isAuthenticated) {
-    next({ name: "home page" });
-  } else {
-    next();
+  const isAdmin = authStore.user?.isAdmin === true;
+
+  if (to.path === "/" && isAdmin) {
+    return next({ name: "dashboard page" });
   }
+  if (requiresAuth && !authStore.isAuthenticated) {
+    return next({ name: "not found page" });
+  }
+  if (requiresAdmin && !isAdmin) {
+    return next({ name: "not found page" });
+  }
+  return next();
 });
 
 export default router;

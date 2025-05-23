@@ -1,6 +1,6 @@
 // server/src/models/posseder.ts
 import { DataTypes, Model, Sequelize } from 'sequelize';
-import { Question } from "./question"
+import type { Reponse } from './reponse'; 
 
 interface PossederAttributes {
   id_question: string;
@@ -12,6 +12,8 @@ class Posseder extends Model<PossederAttributes> implements PossederAttributes {
   declare id_question: string;
   declare id_reponse: string;
   declare isCorrect: boolean;
+
+  declare reponse?: Reponse;
 
   public static async initialize(sequelize: Sequelize) {
     await Posseder.init(

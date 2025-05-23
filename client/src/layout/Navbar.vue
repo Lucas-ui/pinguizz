@@ -73,7 +73,7 @@
             <li>
               <RouterLink
                 to="/profile"
-                class="px-4 py-2 hover:bg-gray-100 text-sm text-gray-800 block"
+                class="px-4 py-2 hover:bg-gray-100 text-sm text-gray-800 block rounded-lg"
                 @click="hideModalOnClick"
               >
                 Profil
@@ -81,7 +81,7 @@
             </li>
             <li>
               <button
-                class="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm text-gray-800"
+                class="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm text-gray-800 rounded-lg"
                 @click="logOutAndClose"
               >
                 Déconnexion

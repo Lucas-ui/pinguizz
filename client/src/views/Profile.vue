@@ -23,7 +23,6 @@
           Supprimer mon compte
         </button>
       </aside>
-
       <div class="flex-1 ml-0 sm:ml-8 p-2 sm:p-6 rounded-lg">
         <div class="border-b mb-4">
           <nav class="flex space-x-4 text-black">
@@ -69,46 +68,86 @@
         <div v-if="currentTab === 'infos'" class="space-y-4">
           <div>
             <label class="block text-sm font-medium text-gray-700">Nom</label>
-            <input
-              v-model="nom"
-              type="text"
-              class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm p-2 text-black"
-            />
+            <div class="mt-1 flex gap-2">
+              <input
+                v-model="nom"
+                type="text"
+                class="w-full rounded-md border border-gray-300 shadow-sm p-2 text-black"
+              />
+              <button
+                @click="updateNom"
+                class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 cursor-pointer"
+              >
+                Valider
+              </button>
+            </div>
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700"
               >Prénom</label
             >
-            <input
-              v-model="prenom"
-              type="text"
-              class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm p-2 text-black"
-            />
+            <div class="mt-1 flex gap-2">
+              <input
+                v-model="prenom"
+                type="text"
+                class="w-full rounded-md border border-gray-300 shadow-sm p-2 text-black"
+              />
+              <button
+                @click="updatePrenom"
+                class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 cursor-pointer"
+              >
+                Valider
+              </button>
+            </div>
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700"
               >Identifiant</label
             >
-            <input
-              v-model="username"
-              type="text"
-              class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm p-2 text-black"
-            />
+            <div class="mt-1 flex gap-2">
+              <input
+                v-model="username"
+                type="text"
+                class="w-full rounded-md border border-gray-300 shadow-sm p-2 text-black"
+              />
+              <button
+                @click="updateUsername"
+                class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 cursor-pointer"
+              >
+                Valider
+              </button>
+            </div>
           </div>
-          <button
-            class="bg-blue-600 text-white cursor-pointer rounded-full px-4 py-2 rounded hover:bg-blue-700"
-          >
-            Modifier mes informations
-          </button>
         </div>
 
         <div v-else-if="currentTab === 'password'" class="space-y-4">
+          <div
+            class="text-white rounded-md p-4 mt-5 mb-5 bg-gradient-to-r from-[#f01f1f66] to-[#f01f1f66] border border-[#f01f1f66]"
+            v-if="errorMessage"
+          >
+            <div>
+              <div class="text-sm text-[#1f2328]">
+                {{ errorMessage }}
+              </div>
+            </div>
+          </div>
+          <div
+            class="text-white rounded-md p-4 mt-5 mb-5 bg-gradient-to-r from-[#4bb54366] to-[#4bb54366] border border-[#4bb54366]'"
+            v-if="successMessage"
+          >
+            <div>
+              <div class="text-sm text-[#1f2328]">
+                {{ successMessage }}
+              </div>
+            </div>
+          </div>
           <div>
             <label class="block text-sm font-medium text-gray-700"
               >Nouveau mot de passe</label
             >
             <input
               type="password"
+              v-model="newPassword"
               class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm p-2 text-black"
             />
           </div>
@@ -118,11 +157,13 @@
             >
             <input
               type="password"
+              v-model="confirmPassword"
               class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm p-2 text-black"
             />
           </div>
           <button
             class="bg-blue-600 text-white rounded-full cursor-pointer px-4 py-2 rounded hover:bg-blue-700"
+            @click="updatePassword"
           >
             Modifier le mot de passe
           </button>
@@ -169,18 +210,92 @@ import { useRouter } from "vue-router";
 import { ref, computed, watch } from "vue";
 import { useAuthStore } from "../stores/authStore";
 import { deleteUser } from "../api/user";
+import {
+  editPassword,
+  editName,
+  editFirstname,
+  editUsername,
+} from "../api/user";
 
 const router = useRouter();
 const authStore = useAuthStore();
 const user = computed(() => authStore.user);
 const apiUrl = import.meta.env.VITE_API_URL || "http://localhost/api";
-
 const currentTab = ref("infos");
 const nom = ref("");
 const prenom = ref("");
 const username = ref("");
-
 const showDeleteModal = ref(false);
+const newPassword = ref("");
+const confirmPassword = ref("");
+const errorMessage = ref("");
+const successMessage = ref("");
+
+const updatePassword = async () => {
+  errorMessage.value = "";
+  const data = {
+    newPassword: newPassword.value,
+    confirmPassword: confirmPassword.value,
+  };
+  try {
+    await editPassword(data);
+    newPassword.value = "";
+    confirmPassword.value = "";
+    successMessage.value = "Mot de passe modifié avec succès.";
+  } catch (error) {
+    errorMessage.value = error.response.data.error;
+    newPassword.value = "";
+    confirmPassword.value = "";
+    console.error(error);
+  }
+};
+
+const updateNom = async () => {
+  const data = {
+    name: nom.value,
+  };
+  try {
+    await editName(data);
+    authStore.updateUser({ name: nom.value });
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+const updatePrenom = async () => {
+  const data = {
+    firstname: prenom.value,
+  };
+  try {
+    await editFirstname(data);
+    authStore.updateUser({ firstname: prenom.value });
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+const updateUsername = async () => {
+  const data = {
+    username: username.value,
+  };
+  try {
+    await editUsername(data);
+    authStore.updateUser({ username: username.value });
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+const deleteAccount = async () => {
+  showDeleteModal.value = false;
+  try {
+    await deleteUser();
+    authStore.logout();
+    router.push("/login");
+  } catch (error) {
+    console.error(error);
+  }
+};
 
 watch(
   user,
@@ -193,15 +308,4 @@ watch(
   },
   { immediate: true }
 );
-
-const deleteAccount = async () => {
-  showDeleteModal.value = false;
-  try {
-    await deleteUser();
-    authStore.logout();
-    router.push("/login");
-  } catch (error) {
-    console.error(error);
-  }
-};
 </script>
