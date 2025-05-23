@@ -64,13 +64,10 @@ class PartieController {
   async result(c: Context) {
     try {
       const body = await c.req.json();
-      console.log("✅ Requête reçue avec le body :", JSON.stringify(body, null, 2));
 
       const userId = c.get("userId");
-      console.log("👤 ID utilisateur récupéré :", userId);
 
       if (!body || typeof body !== "object") {
-        console.warn("⚠️ Requête invalide. Le corps est vide ou incorrect.");
         return c.json({ error: "Requête invalide. Le corps de la requête est vide ou incorrect." }, 400);
       }
 
@@ -81,8 +78,6 @@ class PartieController {
         const selectedResponseIds = Array.isArray(body[questionId])
           ? body[questionId]
           : [body[questionId]];
-
-        console.log(`🔍 Traitement de la question ${questionId} avec réponses sélectionnées :`, selectedResponseIds);
 
         const question = await Question.findOne({ where: { id: questionId } });
         if (!question) {
@@ -105,8 +100,6 @@ class PartieController {
           isSelected: selectedResponseIds.includes(p.id_reponse),
         }));
 
-        console.log(`📋 Réponses attendues pour la question ${questionId} :`, responses);
-
         let isCorrect = true;
         for (const id of selectedResponseIds) {
           const p = allPosseder.find(p => p.id_reponse === id);
@@ -117,11 +110,8 @@ class PartieController {
         }
 
         if (isCorrect) {
-          console.log(`✅ Bonne réponse pour la question ${questionId}`);
           correctCount++;
-        } else {
-          console.log(`❌ Mauvaise réponse pour la question ${questionId}`);
-        }
+        } 
 
         detailedResults.push({
           questionId,
@@ -133,7 +123,6 @@ class PartieController {
       }
 
       const partieId = identifier.uuidV4();
-      console.log(`🆕 Création de la partie avec ID : ${partieId} et score : ${correctCount}`);
 
       await Partie.create({
         id: partieId,
@@ -143,7 +132,6 @@ class PartieController {
 
       for (const { questionId, selectedResponseIds } of detailedResults) {
         for (const responseId of selectedResponseIds) {
-          console.log(`📌 Enregistrement réponse : question ${questionId}, réponse ${responseId}`);
           await Contenir.create({
             id_partie: partieId,
             id_question: questionId,
@@ -151,8 +139,6 @@ class PartieController {
           });
         }
       }
-
-      console.log("✅ Partie enregistrée avec succès.");
 
       return c.json({
         score: correctCount,
