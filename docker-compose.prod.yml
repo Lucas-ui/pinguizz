@@ -1,7 +1,6 @@
 services:
   client:
     image: node:22-alpine
-    container_name: pinguiz-client
     working_dir: /client
     command: sh -c "rm -rf ./node_modules && npm install && npm run prod"
     volumes:
