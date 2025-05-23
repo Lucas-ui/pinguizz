@@ -1,8 +1,8 @@
 services:
   client:
-    image: node:22-alpine
+    build: ./client
     working_dir: /client
-    command: sh -c "rm -rf ./node_modules && npm install && npm run prod"
+    command: sh -c "npm install && npm run prod"
     volumes:
       - ./client:/client
     networks:
