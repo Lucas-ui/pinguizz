@@ -1,9 +1,9 @@
 services:
   client:
-    image: node:22-alpine
-    container_name: pinguiz-client
+    build: ./client
     working_dir: /client
-    command: sh -c "rm -rf ./node_modules && npm install && npm run dev"
+    command: sh -c "npm install && npm run prod"
+    scale : 2
     volumes:
       - ./client:/client
     networks:
@@ -13,11 +13,10 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.client.rule=PathPrefix(`/`)"
       - "traefik.http.routers.client.entrypoints=web"
-      - "traefik.http.services.client.loadbalancer.server.port=5173"
+      - "traefik.http.services.client.loadbalancer.server.port=4173"
 
   server:
     image: oven/bun:1-alpine
-    container_name: pinguiz-server
     working_dir: /app
     volumes:
       - ./server:/app
@@ -39,6 +38,7 @@ services:
       - mariadb
     stop_grace_period: 1s
     restart: always
+    scale : 2
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.server.rule=PathPrefix(`/api`)"
@@ -53,10 +53,26 @@ services:
     volumes:
       - ./server/env/sql/init.sql:/docker-entrypoint-initdb.d/init.sql
       - db-data-pinguiz:/var/lib/mariadb
-    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    command: --server-id=1 --log-bin=mysql-bin --log-bin-index=mysql-bin.index --relay-log=relay-bin --relay-log-index=relay-bin.index
     networks:
       - pinguiz-net
     stop_grace_period: 1s
+
+  pinguiz-sql-replica:
+    image: mariadb:11.7.2
+    container_name: pinguiz-sql-replica
+    environment:
+      MYSQL_ROOT_PASSWORD: '%9689I%t9j6RC#Hbn6'
+    ports:
+      - "3307:3306"
+    volumes:
+      - ./server/env/sql/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - slave-data:/var/lib/mysql
+    command: --server-id=2 --log-bin=mysql-bin --log-bin-index=mysql-bin.index --relay-log=relay-bin --relay-log-index=relay-bin.index    
+    depends_on:
+      - mariadb
+    networks:
+      - pinguiz-net
 
   traefik:
     image: traefik:v3.4.0
@@ -95,3 +111,4 @@ networks:
 
 volumes:
   db-data-pinguiz: {}
+  slave-data:
