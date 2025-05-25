@@ -1,0 +1,30 @@
+MASTER : 
+
+docker exec -it  pinguiz-sql mariadb -uroot -p%9689I%t9j6RC#Hbn6
+
+DROP USER IF EXISTS 'replicant'@'%'; 
+FLUSH PRIVILEGES;
+CREATE USER 'replicant'@'%' IDENTIFIED BY 'root';
+GRANT REPLICATION SLAVE, REPLICATION CLIENT ON *.* TO 'replicant'@'%';
+FLUSH PRIVILEGES;
+SELECT user, host FROM mysql.user WHERE user = 'replicant';
+SHOW MASTER STATUS;
+
+
+SLAVE : 
+
+docker exec -it  pinguiz-sql-replica mariadb -uroot -p%9689I%t9j6RC#Hbn6
+
+
+STOP SLAVE;
+RESET SLAVE ALL;
+CHANGE MASTER TO
+  MASTER_HOST='pinguiz-sql',
+  MASTER_PORT=3306,
+  MASTER_USER='replicant',
+  MASTER_PASSWORD='root',
+  MASTER_LOG_FILE='mysql-bin.000002',
+  MASTER_LOG_POS=11634,
+  MASTER_CONNECT_RETRY=60;
+START SLAVE;
+SHOW SLAVE STATUS\G;
