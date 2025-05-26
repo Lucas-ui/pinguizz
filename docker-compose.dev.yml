@@ -1,114 +1,111 @@
 services:
-  client:
-    build: ./client
-    working_dir: /client
-    command: sh -c "npm install && npm run prod"
-    scale : 2
-    volumes:
-      - ./client:/client
-    networks:
-      - pinguiz-net
-    stop_grace_period: 1s
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.client.rule=PathPrefix(`/`)"
-      - "traefik.http.routers.client.entrypoints=web"
-      - "traefik.http.services.client.loadbalancer.server.port=4173"
+    client:
+        build: ./client
+        working_dir: /client
+        command: sh -c "npm install && npm run prod"
+        scale: 2
+        volumes:
+            - ./client:/client
+        networks:
+            - pinguiz-net
+        stop_grace_period: 1s
+        labels:
+            - "traefik.enable=true"
+            - "traefik.http.routers.client.rule=PathPrefix(`/`)"
+            - "traefik.http.routers.client.entrypoints=web"
+            - "traefik.http.services.client.loadbalancer.server.port=4173"
 
-  server:
-    image: oven/bun:1-alpine
-    working_dir: /app
-    volumes:
-      - ./server:/app
-    env_file:
-      - server/env/.env.dev
-    networks:
-      - pinguiz-net
-    command: >
-      sh -c "
-        until nc -z mariadb 3306; do
-          echo '⏳ Attente de mariadb...';
-          sleep 2;
-        done &&
-        echo '✅ mariadb prêt, lancement du serveur' &&
-        bun install &&
-        bun --watch src/app.ts
-      "
-    depends_on:
-      - mariadb
-    stop_grace_period: 1s
-    restart: always
-    scale : 2
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.server.rule=PathPrefix(`/api`)"
-      - "traefik.http.routers.server.entrypoints=web"
-      - "traefik.http.services.server.loadbalancer.server.port=3000"
+    server:
+        image: oven/bun:1-alpine
+        working_dir: /app
+        volumes:
+            - ./server:/app
+        env_file:
+            - server/env/.env.dev
+        networks:
+            - pinguiz-net
+        command: >
+            sh -c "
+              until nc -z mariadb 3306; do
+                echo '⏳ Attente de mariadb...';
+                sleep 2;
+              done &&
+              echo '✅ mariadb prêt, lancement du serveur' &&
+              bun install &&
+              bun --watch src/app.ts
+            "
+        depends_on:
+            - mariadb
+        stop_grace_period: 1s
+        restart: always
+        scale: 2
+        labels:
+            - "traefik.enable=true"
+            - "traefik.http.routers.server.rule=PathPrefix(`/api`)"
+            - "traefik.http.routers.server.entrypoints=web"
+            - "traefik.http.services.server.loadbalancer.server.port=3000"
 
-  mariadb:
-    image: mariadb:11.7.2
-    container_name: pinguiz-sql
-    env_file:
-      - server/env/.env.dev
-    volumes:
-      - ./server/env/sql/init.sql:/docker-entrypoint-initdb.d/init.sql
-      - db-data-pinguiz:/var/lib/mariadb
-    command: --server-id=1 --log-bin=mysql-bin --log-bin-index=mysql-bin.index --relay-log=relay-bin --relay-log-index=relay-bin.index
-    networks:
-      - pinguiz-net
-    stop_grace_period: 1s
+    mariadb:
+        image: mariadb:11.7.2
+        container_name: pinguiz-sql
+        env_file:
+            - server/env/.env.dev
+        volumes:
+            - ./server/env/sql/init.sql:/docker-entrypoint-initdb.d/init.sql
+            - db-data-pinguiz:/var/lib/mariadb
+        command: --server-id=1 --log-bin=mysql-bin --log-bin-index=mysql-bin.index --relay-log=relay-bin --relay-log-index=relay-bin.index
+        networks:
+            - pinguiz-net
+        stop_grace_period: 1s
 
-  pinguiz-sql-replica:
-    image: mariadb:11.7.2
-    container_name: pinguiz-sql-replica
-    environment:
-      MYSQL_ROOT_PASSWORD: '%9689I%t9j6RC#Hbn6'
-    ports:
-      - "3307:3306"
-    volumes:
-      - ./server/env/sql/init.sql:/docker-entrypoint-initdb.d/init.sql
-      - slave-data:/var/lib/mysql
-    command: --server-id=2 --log-bin=mysql-bin --log-bin-index=mysql-bin.index --relay-log=relay-bin --relay-log-index=relay-bin.index    
-    depends_on:
-      - mariadb
-    networks:
-      - pinguiz-net
+    pinguiz-sql-replica:
+        image: mariadb:11.7.2
+        container_name: pinguiz-sql-replica
+        env_file:
+            - server/env/.env.dev
+        volumes:
+            - ./server/env/sql/init.sql:/docker-entrypoint-initdb.d/init.sql
+            - slave-data:/var/lib/mysql
+        command: --server-id=2 --log-bin=mysql-bin --log-bin-index=mysql-bin.index --relay-log=relay-bin --relay-log-index=relay-bin.index
+        depends_on:
+            - mariadb
+        networks:
+            - pinguiz-net
 
-  traefik:
-    image: traefik:v3.4.0
-    container_name: pinguiz-traefik
-    ports:
-      - "80:80"
-      - "8080:8080"
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-    command:
-      - "--api.insecure=true"
-      - "--providers.docker=true"
-      - "--entrypoints.web.address=:80"
-    networks:
-      - pinguiz-net
-    depends_on:
-      - client
-      - server
-
-  phpmyadmin:
-    image: phpmyadmin:5
-    container_name: pinguiz-pma
-    ports:
-      - "9090:80"
-    env_file:
-      - server/env/.env.dev
-    networks:
-      - pinguiz-net
-    depends_on:
-      - mariadb
-    stop_grace_period: 1s
+    traefik:
+        image: traefik:v3.4.0
+        container_name: pinguiz-traefik
+        ports:
+            - "80:80"
+            - "8080:8080"
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock:ro
+        command:
+            - "--api.insecure=true"
+            - "--providers.docker=true"
+            - "--entrypoints.web.address=:80"
+        networks:
+            - pinguiz-net
+        depends_on:
+            - client
+            - server
+    cloudbeaver:
+        image: dbeaver/cloudbeaver:latest
+        container_name: cloudbeaver
+        ports:
+            - "9090:8978"
+        volumes:
+            - ./cloudbeaver_config/workspace:/opt/cloudbeaver/workspace
+            - ./cloudbeaver_config/cloudbeaver.conf:/opt/cloudbeaver/conf/cloudbeaver.conf
+            - ./cloudbeaver_config/initial-data.conf:/opt/cloudbeaver/conf/initial-data.conf
+        restart: unless-stopped
+        networks:
+            - pinguiz-net
 
 networks:
-  pinguiz-net:
-    driver: bridge
+    pinguiz-net:
+        driver: bridge
 
 volumes:
-  db-data-pinguiz: {}
-  slave-data:
+    db-data-pinguiz: {}
+    slave-data:

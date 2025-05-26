@@ -3,8 +3,10 @@ COMPOSE_DEV = docker-compose.dev.yml
 COMPOSE_PROD = docker-compose.prod.yml
 COMPOSE_1 = docker-compose.1.yml
 COMPOSE_2 = docker-compose.2.yml
-VOLUME1 = pinguizz_slave-data
-VOLUME2 = pinguizz_db-data-pinguiz
+VOLUMEMASTER = pinguizz_slave-data
+VOLUMEREPLICAT = pinguizz_db-data-pinguiz
+VOLUMEDBEAVER = pinguizz_cloudbeaver_data
+
 run:
 	docker compose -f $(COMPOSE_DEV) up
 
@@ -19,7 +21,7 @@ down:
 
 reset:
 	docker compose -f $(COMPOSE_DEV) down
-	docker volume rm $(VOLUME1) $(VOLUME2)
+	docker volume rm $(VOLUMEMASTER) $(VOLUMEREPLICAT)
 	docker compose -f $(COMPOSE_DEV) up
 	
 
