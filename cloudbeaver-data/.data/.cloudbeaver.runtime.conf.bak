@@ -2,10 +2,10 @@
   "server": {
     "serverName": "CloudBeaver CE Server",
     "serverURL": "http://localhost:9090",
-    "expireSessionAfterPeriod": "${CLOUDBEAVER_EXPIRE_SESSION_AFTER_PERIOD:43200000}",
+    "expireSessionAfterPeriod": "${CLOUDBEAVER_EXPIRE_SESSION_AFTER_PERIOD:1800000}",
     "productSettings": {
-      "core.localization.language": "${CLOUDBEAVER_CORE_LOCALIZATION:fr}",
-      "core.theming.theme": "${CLOUDBEAVER_CORE_THEMING_THEME:dark}",
+      "core.localization.language": "${CLOUDBEAVER_CORE_LOCALIZATION:en}",
+      "core.theming.theme": "${CLOUDBEAVER_CORE_THEMING_THEME:light}",
       "plugin.log-viewer.disabled": "${CLOUDBEAVER_LOG_VIEWER_DISABLED:false}",
       "plugin.log-viewer.logBatchSize": "${CLOUDBEAVER_LOG_VIEWER_LOG_BATCH_SIZE:1000}",
       "plugin.log-viewer.maxLogRecords": "${CLOUDBEAVER_LOG_VIEWER_MAX_LOG_RECORDS:2000}",
@@ -23,9 +23,9 @@
       "backupEnabled": "${CLOUDBEAVER_DB_BACKUP_ENABLED:true}",
       "pool": {
         "minIdleConnections": "${CLOUDBEAVER_DB_MIN_IDLE_CONNECTIONS:4}",
-        "validationQuery": "${CLOUDBEAVER_DB_VALIDATION_QUERY:SELECT 1}",
         "maxIdleConnections": "${CLOUDBEAVER_DB_MAX_IDLE_CONNECTIONS:10}",
-        "maxConnections": "${CLOUDBEAVER_DB_MAX_CONNECTIONS:100}"
+        "maxConnections": "${CLOUDBEAVER_DB_MAX_CONNECTIONS:100}",
+        "validationQuery": "${CLOUDBEAVER_DB_VALIDATION_QUERY:SELECT 1}"
       }
     },
     "sm": {

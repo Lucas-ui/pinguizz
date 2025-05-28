@@ -97,9 +97,6 @@ services:
         restart: unless-stopped
         volumes:
             - ./cloudbeaver-data:/opt/cloudbeaver/workspace
-        environment:
-            - CB_ADMIN_NAME=admin
-            - CB_ADMIN_PASSWORD=motdepassefort
         networks:
             - pinguiz-net
 
