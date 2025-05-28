@@ -94,11 +94,12 @@ services:
         container_name: cloudbeaver
         ports:
             - "9090:8978"
-        volumes:
-            - ./cloudbeaver_config/workspace:/opt/cloudbeaver/workspace
-            - ./cloudbeaver_config/cloudbeaver.conf:/opt/cloudbeaver/conf/cloudbeaver.conf
-            - ./cloudbeaver_config/initial-data.conf:/opt/cloudbeaver/conf/initial-data.conf
         restart: unless-stopped
+        volumes:
+            - ./cloudbeaver-data:/opt/cloudbeaver/workspace
+        environment:
+            - CB_ADMIN_NAME=admin
+            - CB_ADMIN_PASSWORD=motdepassefort
         networks:
             - pinguiz-net
 
