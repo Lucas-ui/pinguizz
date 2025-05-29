@@ -28,7 +28,7 @@ logger.loggerConsole.info("PMA : http://localhost:9090");
 
 (async () => {
     try {
-        await Database.connect(); 
+        await Database.connect();
         logger.loggerConsole.info("📦 Base de données initialisée");
     } catch (error) {
         logger.loggerConsole.error(
@@ -76,38 +76,42 @@ app.route("/api/module", moduleRouter);
 
 // Images
 app.get(
-  "/api/images/avatar/*",
-  serveStatic({
-    root: "./src/images/avatar",
-    rewriteRequestPath: (path) => path.replace("/api/images/avatar", ""),
-  })
+    "/api/images/avatar/*",
+    serveStatic({
+        root: "./src/images/avatar",
+        rewriteRequestPath: (path) => path.replace("/api/images/avatar", ""),
+    })
 );
 
 app.get(
-  "/api/images/theme/*",
-  serveStatic({ 
-    root: "./src/images/theme",
-    rewriteRequestPath: (path) => path.replace("/api/images/theme", ""),
-   })
+    "/api/images/theme/*",
+    serveStatic({
+        root: "./src/images/theme",
+        rewriteRequestPath: (path) => path.replace("/api/images/theme", ""),
+    })
 );
 
 app.get(
-  "/api/images/module/*",
-  serveStatic({ 
-    root: "./src/images/module",
-    rewriteRequestPath: (path) => path.replace("/api/images/module", ""),
-   })
+    "/api/images/module/*",
+    serveStatic({
+        root: "./src/images/module",
+        rewriteRequestPath: (path) => path.replace("/api/images/module", ""),
+    })
 );
 
 app.get(
-  "/api/images/quiz/*",
-  serveStatic({ 
-    root: "./src/images/quiz",
-    rewriteRequestPath: (path) => path.replace("/api/images/quiz", ""),
-   })
+    "/api/images/quiz/*",
+    serveStatic({
+        root: "./src/images/quiz",
+        rewriteRequestPath: (path) => path.replace("/api/images/quiz", ""),
+    })
 );
 
-app.get("/api", (c: Context) => c.text("API avec Bun et Hono !"));
+app.get("/api", (c: Context) =>
+    c.html(
+        '<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title>Bienvenue</title><style>body {font-family: sans-serif;background: #f9f9f9;display: flex;justify-content: center;align-items: center;height: 100vh;margin: 0;}.container {text-align: center;background: white;padding: 2rem 3rem;border-radius: 12px;box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);}h1 {color: #2c3e50;margin-bottom: 1rem;}p {color: #555;}</style></head><body><div class="container"><h1>Bienvenue sur ton API 👋</h1><p>Développée avec <strong>Bun</strong> + <strong>Hono</strong> 🚀</p></div></body></html>'
+    )
+);
 
 export default {
     port: process.env.PORT || 3000,
