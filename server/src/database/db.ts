@@ -1,6 +1,5 @@
-// ./database/db.ts
-import { Sequelize, type Transaction } from "sequelize";
-import { initializeAllModels } from "../models";
+import { Sequelize, Transaction } from "sequelize";
+import { initializeAllModels } from "./models"; // Ton index.ts de modèles
 import { logger } from "../class/logger";
 
 class Database {
@@ -8,35 +7,29 @@ class Database {
 
     constructor() {
         this.sequelize = new Sequelize({
-            database: process.env.MYSQL_DATABASE!,
             dialect: process.env.MYSQL_DIALECT as any,
             replication: {
+                write: {
+                    host: process.env.MYSQL_HOST!,
+                    username: process.env.MYSQL_USER!,
+                    password: process.env.MYSQL_PASSWORD!,
+                    database: process.env.MYSQL_DATABASE!,
+                },
                 read: [
                     {
-                        host: process.env.MYSQL_REPLICA1_HOST!,
-                        username: process.env.MYSQL_REPLICA_USER!,
-                        password: process.env.MYSQL_REPLICA_PASSWORD!,
-                    },
-                    {
-                        host: process.env.MYSQL_REPLICA2_HOST!,
-                        username: process.env.MYSQL_REPLICA_USER!,
-                        password: process.env.MYSQL_REPLICA_PASSWORD!,
+                        host: process.env.MYSQL_REPLICA_HOST!,
+                        username: process.env.MYSQL_USER!,
+                        password: process.env.MYSQL_PASSWORD!,
+                        database: process.env.MYSQL_DATABASE!,
                     },
                 ],
-                write: {
-                    host: process.env.MYSQL_MASTER_HOST!,
-                    username: process.env.MYSQL_MASTER_USER!,
-                    password: process.env.MYSQL_MASTER_PASSWORD!,
-                },
             },
+            dialectOptions: { charset: "utf8mb4" },
             pool: {
                 max: 10,
                 min: 0,
                 acquire: 30000,
                 idle: 10000,
-            },
-            dialectOptions: {
-                charset: "utf8mb4",
             },
             benchmark: true,
             logging: (msg, timing) => {
@@ -52,8 +45,6 @@ class Database {
         try {
             await initializeAllModels(this.sequelize);
             await this.sequelize.authenticate();
-
-            await this.sequelize.sync({ alter: true });
 
             logger.loggerApi.info(
                 `✅ [MySQL] Connecté à ${process.env.MYSQL_DATABASE}`
@@ -83,10 +74,7 @@ class Database {
             return result;
         } catch (error) {
             await t.rollback();
-            logger.loggerApi.error(
-                "❌ [MySQL] Transaction annulée à cause d'une erreur:",
-                error
-            );
+            logger.loggerApi.error("❌ [MySQL] Transaction annulée:", error);
             throw error;
         }
     }

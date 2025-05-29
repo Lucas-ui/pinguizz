@@ -1,5 +1,5 @@
 import { userController } from "../../../src/controllers/user";
-import { User } from "../../../src/models/user";
+import { User } from "../../../src/database/models/user";
 
 vi.mock("../../../src/models/user");
 

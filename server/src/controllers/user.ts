@@ -1,5 +1,5 @@
 import { type Context } from "hono";
-import { User } from "../models/user";
+import { User } from "../database/models/user";
 import { hasher } from "../class/hasher";
 class UserController {
     async get(c: Context) {
@@ -25,18 +25,28 @@ class UserController {
             const { newPassword, confirmPassword } = await c.req.json();
 
             if (!newPassword || !confirmPassword) {
-                return c.json({ error: "Nouveau mot de passe et confirmation requis." }, 400);
+                return c.json(
+                    { error: "Nouveau mot de passe et confirmation requis." },
+                    400
+                );
             }
 
             if (newPassword !== confirmPassword) {
-                return c.json({ error: "Les mots de passe ne correspondent pas." }, 400);
+                return c.json(
+                    { error: "Les mots de passe ne correspondent pas." },
+                    400
+                );
             }
 
-            const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{12,}$/;
+            const passwordRegex =
+                /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{12,}$/;
             if (!passwordRegex.test(newPassword)) {
-                return c.json({
-                error: "Mot de passe trop faible. Il doit contenir au moins 12 caractères, une majuscule, une minuscule, un chiffre et un caractère spécial."
-            }, 400);
+                return c.json(
+                    {
+                        error: "Mot de passe trop faible. Il doit contenir au moins 12 caractères, une majuscule, une minuscule, un chiffre et un caractère spécial.",
+                    },
+                    400
+                );
             }
 
             const hashedPassword = await hasher.hash(newPassword, "bcrypt");
@@ -49,8 +59,10 @@ class UserController {
             user.password = hashedPassword;
             await user.save();
 
-            return c.json({ message: "Mot de passe mis à jour avec succès." }, 200);
-
+            return c.json(
+                { message: "Mot de passe mis à jour avec succès." },
+                200
+            );
         } catch (err) {
             return c.json({ error: "Erreur serveur." }, 500);
         }
@@ -92,7 +104,11 @@ class UserController {
 
             const { firstname } = await c.req.json();
 
-            if (!firstname || typeof firstname !== "string" || firstname.trim().length === 0) {
+            if (
+                !firstname ||
+                typeof firstname !== "string" ||
+                firstname.trim().length === 0
+            ) {
                 return c.json({ error: "Prénom invalide." }, 400);
             }
 
@@ -119,13 +135,22 @@ class UserController {
 
             const { username } = await c.req.json();
 
-            if (!username || typeof username !== "string" || username.trim().length === 0) {
+            if (
+                !username ||
+                typeof username !== "string" ||
+                username.trim().length === 0
+            ) {
                 return c.json({ error: "Nom d'utilisateur invalide." }, 400);
             }
 
-            const existingUser = await User.findOne({ where: { username: username.trim() } });
+            const existingUser = await User.findOne({
+                where: { username: username.trim() },
+            });
             if (existingUser && existingUser.username !== userId) {
-                return c.json({ error: "Nom d'utilisateur déjà utilisé." }, 409);
+                return c.json(
+                    { error: "Nom d'utilisateur déjà utilisé." },
+                    409
+                );
             }
 
             const user = await User.findOne({ where: { id: userId } });
@@ -136,7 +161,10 @@ class UserController {
             user.username = username.trim();
             await user.save();
 
-            return c.json({ message: "Nom d'utilisateur mis à jour avec succès." }, 200);
+            return c.json(
+                { message: "Nom d'utilisateur mis à jour avec succès." },
+                200
+            );
         } catch (err) {
             return c.json({ error: "Erreur serveur." }, 500);
         }
@@ -145,7 +173,7 @@ class UserController {
     async all(c: Context) {
         try {
             const users = await User.findAll({
-                attributes: { exclude: ['password'] }
+                attributes: { exclude: ["password"] },
             });
 
             return c.json({ users }, 200);
@@ -157,7 +185,7 @@ class UserController {
     async deleteByUsername(c: Context) {
         try {
             const { username } = c.req.param();
-            console.log("Le username : ", username)
+            console.log("Le username : ", username);
             if (!username) {
                 return c.json({ error: "Nom d'utilisateur manquant." }, 400);
             }
@@ -170,7 +198,10 @@ class UserController {
 
             await user.destroy();
 
-            return c.json({ message: `Utilisateur '${username}' supprimé avec succès.` }, 200);
+            return c.json(
+                { message: `Utilisateur '${username}' supprimé avec succès.` },
+                200
+            );
         } catch (err) {
             return c.json({ error: "Erreur serveur" }, 500);
         }

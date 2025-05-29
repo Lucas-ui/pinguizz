@@ -1,7 +1,7 @@
 import { type Context } from "hono";
 import { sign, verify } from "jsonwebtoken";
 import { logger } from "../class/logger";
-import { User } from "../models/user";
+import { User } from "../database/models/user";
 import { hasher } from "../class/hasher";
 import Identifier from "../class/identifier";
 import { directory } from "../class/directory";
@@ -9,44 +9,51 @@ import { Op, ValidationError } from "sequelize";
 
 class AuthController {
     async register(c: Context) {
-    const data = c.get("validatedBody");
+        const data = c.get("validatedBody");
 
-    try {
-        const hashedPassword = await hasher.hash(data.password);
+        try {
+            const hashedPassword = await hasher.hash(data.password);
 
-        const avatar = await directory.getAvatar()
+            const avatar = await directory.getAvatar();
 
-        const newUser = await User.create({
-            id: Identifier.uuidV4(),
-            username: data.username,
-            name: data.name,
-            firstname: data.firstname,
-            password: hashedPassword,
-            isAdmin: false,
-            image: avatar,
-        });
+            const newUser = await User.create({
+                id: Identifier.uuidV4(),
+                username: data.username,
+                name: data.name,
+                firstname: data.firstname,
+                password: hashedPassword,
+                isAdmin: false,
+                image: avatar,
+            });
 
-        const dataNewUser = newUser.get({ plain: true });
-        logger.loggerApi.info(`Inscription réussie: ${dataNewUser.username}`);
+            const dataNewUser = newUser.get({ plain: true });
+            logger.loggerApi.info(
+                `Inscription réussie: ${dataNewUser.username}`
+            );
 
-        return c.json(
-            { message: "Utilisateur créé avec succès", username: dataNewUser.username },
-            201
-        );
-    } catch (error) {
-
-        if (error instanceof ValidationError) {
             return c.json(
-                { error: error.errors.map((e) => e.message) },
-                400
+                {
+                    message: "Utilisateur créé avec succès",
+                    username: dataNewUser.username,
+                },
+                201
+            );
+        } catch (error) {
+            if (error instanceof ValidationError) {
+                return c.json(
+                    { error: error.errors.map((e) => e.message) },
+                    400
+                );
+            }
+            logger.loggerAuth.error(
+                `Erreur lors de l'inscription: ${data.username} | ${error}`
+            );
+            return c.json(
+                { error: "Erreur lors de la création", details: error.message },
+                500
             );
         }
-        logger.loggerAuth.error(
-            `Erreur lors de l'inscription: ${data.username} | ${error}`
-        );
-        return c.json({ error: "Erreur lors de la création", details: error.message }, 500);
     }
-}
 
     async signin(c: Context) {
         const data = c.get("validatedBody");
@@ -81,9 +88,13 @@ class AuthController {
                 );
             }
 
-            const token = sign({ userId: user.id, isAdmin: user.isAdmin }, process.env.JWT_SECRET!, {
-                expiresIn: "1h",
-            });
+            const token = sign(
+                { userId: user.id, isAdmin: user.isAdmin },
+                process.env.JWT_SECRET!,
+                {
+                    expiresIn: "1h",
+                }
+            );
 
             logger.loggerApi.info("Connexion réussie: " + user.id);
 
@@ -92,7 +103,7 @@ class AuthController {
                 token: token,
             };
 
-            return c.json({ user: dataUser }, 200); 
+            return c.json({ user: dataUser }, 200);
         } catch (error) {
             logger.loggerAuth.error(
                 "Erreur lors de la connexion: " + data.id + " | " + error
@@ -100,7 +111,6 @@ class AuthController {
             return c.json({ error: "Erreur lors de la connexion" }, 500);
         }
     }
-
 
     async profil(c: Context) {
         const userId = c.get("userId");
@@ -132,7 +142,9 @@ class AuthController {
             }
 
             logger.loggerApi.info(
-                "Utilisateur " + decoded.userId + " déconnecté (token oublié côté client)"
+                "Utilisateur " +
+                    decoded.userId +
+                    " déconnecté (token oublié côté client)"
             );
 
             return c.json(200);
@@ -141,7 +153,6 @@ class AuthController {
             return c.json({ error: "Erreur lors de la déconnexion" }, 500);
         }
     }
-
 }
 
 export const authController = new AuthController();
