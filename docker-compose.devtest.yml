@@ -76,7 +76,6 @@ services:
     networks:
       - pinguiz-net
 
-
   traefik:
     image: traefik:v3.4.0
     container_name: pinguiz-traefik

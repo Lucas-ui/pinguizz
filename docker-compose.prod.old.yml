@@ -12,8 +12,9 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.client.rule=PathPrefix(`/`)"
-      - "traefik.http.routers.client.entrypoints=web"
+      - "traefik.http.routers.client.entrypoints=websecure"
       - "traefik.http.services.client.loadbalancer.server.port=4173"
+      - "traefik.http.routers.client.tls=true"
 
   server:
     image: oven/bun:1-alpine
@@ -41,8 +42,9 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.server.rule=PathPrefix(`/api`)"
-      - "traefik.http.routers.server.entrypoints=web"
+      - "traefik.http.routers.server.entrypoints=websecure"
       - "traefik.http.services.server.loadbalancer.server.port=3000"
+      - "traefik.http.routers.server.tls=true"
 
   mysql:
     image: mysql:8
@@ -61,17 +63,25 @@ services:
     container_name: pinguiz-traefik
     ports:
       - "80:80"
+      - "443:443"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik/certs:/certs:ro
     command:
-      - "--api.insecure=true"
       - "--providers.docker=true"
       - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--entrypoints.websecure.http.tls=true"
     networks:
       - pinguiz-net
     depends_on:
       - client
       - server
+    labels:
+      - "traefik.http.routers.http-catchall.rule=HostRegexp(`{host:.+}`)"
+      - "traefik.http.routers.http-catchall.entrypoints=web"
+      - "traefik.http.routers.http-catchall.middlewares=redirect-to-https"
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
 
 networks:
   pinguiz-net:
