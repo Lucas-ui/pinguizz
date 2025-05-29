@@ -2,3 +2,4 @@ traefik/certs/*
 .DS_Store
 cloudbeaver-data/.data/cb.h2v2.dat.mv.db
 cloudbeaver-data/.metadata/dbeaver-instance.properties
+cloudbeaver-data/.data/cb.h2v2.dat.trace.db
