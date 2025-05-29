@@ -24,16 +24,7 @@ services:
             - server/env/.env.dev
         networks:
             - pinguiz-net
-        command: >
-            sh -c "
-              until nc -z mariadb 3306; do
-                echo '⏳ Attente de mariadb...';
-                sleep 2;
-              done &&
-              echo '✅ mariadb prêt, lancement du serveur' &&
-              bun install &&
-              bun --watch src/app.ts
-            "
+        command: sh -c "make start-server"
         depends_on:
             - mariadb
         stop_grace_period: 1s
