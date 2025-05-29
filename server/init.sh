@@ -1,7 +1,7 @@
 #!/bin/sh
 
 echo "⏳ Attente du master..."
-until nc -z mariadb 3306; do
+until nc -z pinguiz-sql 3306; do
     echo "🕒 En attente de mariadb..."
     sleep 2
 done

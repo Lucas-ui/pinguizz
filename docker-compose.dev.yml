@@ -24,7 +24,7 @@ services:
             - server/env/.env.dev
         networks:
             - pinguiz-net
-        command: sh -c "./init.sh"
+        command: sh -c "chmod +x init.sh && ./init.sh"
         depends_on:
             - pinguiz-sql
         stop_grace_period: 1s
