@@ -10,16 +10,16 @@ class Database {
             dialect: process.env.MYSQL_DIALECT as any,
             replication: {
                 write: {
-                    host: process.env.MYSQL_HOST!,
-                    username: process.env.MYSQL_USER!,
-                    password: process.env.MYSQL_PASSWORD!,
+                    host: process.env.MYSQL_MASTER_HOST!,
+                    username: process.env.MYSQL_MASTER_USER!,
+                    password: process.env.MYSQL_MASTER_PASSWORD!,
                     database: process.env.MYSQL_DATABASE!,
                 },
                 read: [
                     {
-                        host: process.env.MYSQL_REPLICA_HOST!,
-                        username: process.env.MYSQL_USER!,
-                        password: process.env.MYSQL_PASSWORD!,
+                        host: process.env.MYSQL_SLAVE_HOST!,
+                        username: process.env.MYSQL_SLAVE_USER!,
+                        password: process.env.MYSQL_SLAVE_PASSWORD!,
                         database: process.env.MYSQL_DATABASE!,
                     },
                 ],
