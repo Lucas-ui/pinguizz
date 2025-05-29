@@ -7,29 +7,45 @@ class Database {
     public readonly sequelize: Sequelize;
 
     constructor() {
-        this.sequelize = new Sequelize(
-            process.env.MYSQL_DATABASE!,
-            process.env.MYSQL_USER!,
-            process.env.MYSQL_PASSWORD!,
-            {
-                host: process.env.MYSQL_HOST!,
-                port: Number(process.env.MYSQL_PORT),
-                dialect: process.env.MYSQL_DIALECT as any,
-                dialectOptions: { charset: "utf8mb4" },
-                pool: {
-                    max: 10,
-                    min: 0,
-                    acquire: 30000,
-                    idle: 10000,
+        this.sequelize = new Sequelize({
+            database: process.env.MYSQL_DATABASE!,
+            dialect: process.env.MYSQL_DIALECT as any,
+            replication: {
+                read: [
+                    {
+                        host: process.env.MYSQL_REPLICA1_HOST!,
+                        username: process.env.MYSQL_REPLICA_USER!,
+                        password: process.env.MYSQL_REPLICA_PASSWORD!,
+                    },
+                    {
+                        host: process.env.MYSQL_REPLICA2_HOST!,
+                        username: process.env.MYSQL_REPLICA_USER!,
+                        password: process.env.MYSQL_REPLICA_PASSWORD!,
+                    },
+                ],
+                write: {
+                    host: process.env.MYSQL_MASTER_HOST!,
+                    username: process.env.MYSQL_MASTER_USER!,
+                    password: process.env.MYSQL_MASTER_PASSWORD!,
                 },
-                logging: (msg, timing) => {
-                    logger.loggerSequelize.info({
-                        message: msg,
-                        executionTime: timing ? `${timing}ms` : "unknown",
-                    });
-                },
-            }
-        );
+            },
+            pool: {
+                max: 10,
+                min: 0,
+                acquire: 30000,
+                idle: 10000,
+            },
+            dialectOptions: {
+                charset: "utf8mb4",
+            },
+            benchmark: true,
+            logging: (msg, timing) => {
+                logger.loggerSequelize.info({
+                    message: msg,
+                    executionTime: timing ? `${timing}ms` : "unknown",
+                });
+            },
+        });
     }
 
     public async connect() {
