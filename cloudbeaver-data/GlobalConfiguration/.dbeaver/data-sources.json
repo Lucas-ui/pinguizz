@@ -1,7 +1,7 @@
 {
 	"folders": {},
 	"connections": {
-		"mariaDB-1971e17fcd4-3c34a8737b90d5f9": {
+		"mariaDB-19720e25771-200e074f0a9dd579": {
 			"provider": "mysql",
 			"driver": "mariaDB",
 			"name": "MariaDB@pinguiz-sql",
@@ -19,7 +19,7 @@
 				}
 			}
 		},
-		"mariaDB-1971e1850fa-34344dab5528eed6": {
+		"mariaDB-19720e2dbd4-3c8e24537e07c187": {
 			"provider": "mysql",
 			"driver": "mariaDB",
 			"name": "MariaDB@pinguiz-sql-replica",
