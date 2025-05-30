@@ -88,6 +88,7 @@ services:
         restart: unless-stopped
         volumes:
             - ./cloudbeaver-data:/opt/cloudbeaver/workspace
+            - ./cloudbeaver-logback-custom.xml:/opt/cloudbeaver/conf/logback.xml
         networks:
             - pinguiz-net
 
